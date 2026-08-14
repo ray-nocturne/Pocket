@@ -1,0 +1,85 @@
+:root {
+  --pm-bg: #000000;
+  --pm-surface: #1C1C1E;
+  --pm-surface-2: #2C2C2E;
+  --pm-border: rgba(255, 255, 255, 0.08);
+  --pm-text-primary: #F5F5F7;
+  --pm-text-secondary: #98989D;
+  --pm-text-muted: #636366;
+  --pm-accent: #0A84FF;
+  --pm-accent-bg: rgba(10, 132, 255, 0.15);
+  --pm-success: #30D158;
+  --pm-danger: #FF6B52;
+  --pm-radius-lg: 24px;
+  --pm-radius-md: 16px;
+  --pm-radius-sm: 12px;
+  --pm-font: -apple-system, "SF Pro Display", "Inter", system-ui, sans-serif;
+}
+
+body { margin: 0; background: var(--pm-bg); min-height: 100vh; }
+button, input, select, textarea { font-family: inherit; color: inherit; }
+
+.pm-app {
+  font-family: var(--pm-font);
+  color: var(--pm-text-primary);
+  background: var(--pm-bg);
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 20px 100px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.pm-card { background: var(--pm-surface); border-radius: var(--pm-radius-md); padding: 16px; }
+.pm-label { font-size: 13px; color: var(--pm-text-secondary); margin: 0 0 8px; }
+.pm-row { display: flex; align-items: center; gap: 12px; padding: 13px 4px; border-bottom: 0.5px solid var(--pm-border); }
+.pm-row:last-child { border-bottom: none; }
+
+.pm-btn-primary {
+  background: var(--pm-accent); color: #fff; text-align: center; padding: 15px;
+  border-radius: var(--pm-radius-sm); font-size: 15px; font-weight: 600; border: none;
+  width: 100%; cursor: pointer; font-family: var(--pm-font);
+}
+.pm-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.pm-input, .pm-select {
+  width: 100%; border: none; background: var(--pm-surface); color: var(--pm-text-primary);
+  font-size: 16px; font-family: var(--pm-font); padding: 14px; border-radius: var(--pm-radius-sm);
+  box-sizing: border-box;
+}
+.pm-input:focus, .pm-select:focus { outline: none; }
+
+.pm-segmented { display: flex; background: var(--pm-surface); border-radius: 14px; padding: 4px; }
+.pm-segmented button {
+  flex: 1; text-align: center; padding: 9px 0; border-radius: 10px; font-size: 13px;
+  color: var(--pm-text-secondary); border: none; background: none; cursor: pointer; font-family: var(--pm-font);
+}
+.pm-segmented button.active-income { background: var(--pm-success); color: #fff; font-weight: 600; }
+.pm-segmented button.active-expense { background: var(--pm-danger); color: #fff; font-weight: 600; }
+.pm-segmented button.active-transfer { background: var(--pm-accent); color: #fff; font-weight: 600; }
+
+.pm-toggle { width: 38px; height: 22px; border-radius: 11px; position: relative; cursor: pointer; border: none; }
+.pm-toggle.on { background: var(--pm-accent); }
+.pm-toggle.off { background: var(--pm-surface-2); }
+.pm-toggle .knob { width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 2px; transition: left 0.15s; }
+.pm-toggle.on .knob { left: 18px; }
+.pm-toggle.off .knob { left: 2px; }
+
+.pm-fab-wrap { position: fixed; bottom: calc(90px + env(safe-area-inset-bottom)); left: 0; right: 0; max-width: 480px; margin: 0 auto; pointer-events: none; height: 0; }
+.pm-fab {
+  position: absolute; right: 20px; bottom: 0; pointer-events: auto;
+  height: 48px; padding: 0 20px; border-radius: 24px; background: var(--pm-accent); color: #fff;
+  display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+  border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(10,132,255,0.4); z-index: 10;
+  font-family: var(--pm-font); white-space: nowrap;
+}
+
+.pm-tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto;
+  background: #0A0A0A; border-top: 0.5px solid var(--pm-border); display: flex;
+  padding: 10px 0 calc(20px + env(safe-area-inset-bottom));
+}
+.pm-tabbar button { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; font-family: var(--pm-font); }
+.pm-tabbar button.active { color: var(--pm-accent); }
+.pm-tabbar button:not(.active) { color: var(--pm-text-secondary); }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProfile, updateProfile } from "../lib/queries";
+import { getProfile, updateProfile, signOut } from "../lib/queries";
 import "../styles/pocketmaster.css";
 
 export default function Profile({ onHome }) {
@@ -39,32 +39,32 @@ export default function Profile({ onHome }) {
       <div className="pm-card" style={{ marginBottom: 24, opacity: 0.6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <i className="ti ti-users" style={{ fontSize: 15, color: "var(--pm-text-secondary)" }} />
-          <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Berbagi Pocket</p>
-          <span style={{ fontSize: 10, background: "var(--pm-surface-2)", color: "var(--pm-text-secondary)", padding: "2px 8px", borderRadius: 8, marginLeft: "auto" }}>Segera hadir</span>
+          <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Share Pocket</p>
+          <span style={{ fontSize: 10, background: "var(--pm-surface-2)", color: "var(--pm-text-secondary)", padding: "2px 8px", borderRadius: 8, marginLeft: "auto" }}>Coming soon</span>
         </div>
-        <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: 0 }}>Nantinya kamu bisa berbagi pocket dengan orang lain di sini</p>
+        <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: 0 }}>You'll be able to share pockets with others here soon</p>
       </div>
 
       <div className="pm-card" style={{ padding: 0 }}>
         <div className="pm-row" style={{ padding: "14px 16px" }}>
           <i className="ti ti-lock" style={{ fontSize: 17, color: "var(--pm-text-secondary)" }} />
-          <p style={{ fontSize: 14, flex: 1, margin: 0 }}>Ubah Kata Sandi</p>
+          <p style={{ fontSize: 14, flex: 1, margin: 0 }}>Change Password</p>
           <i className="ti ti-chevron-right" style={{ fontSize: 16, color: "var(--pm-text-muted)" }} />
         </div>
         <div className="pm-row" style={{ padding: "14px 16px" }}>
           <i className="ti ti-bell" style={{ fontSize: 17, color: "var(--pm-text-secondary)" }} />
-          <p style={{ fontSize: 14, flex: 1, margin: 0 }}>Notifikasi</p>
+          <p style={{ fontSize: 14, flex: 1, margin: 0 }}>Notifications</p>
           <i className="ti ti-chevron-right" style={{ fontSize: 16, color: "var(--pm-text-muted)" }} />
         </div>
-        <div className="pm-row" style={{ padding: "14px 16px" }}>
+        <button className="pm-row" onClick={signOut} style={{ padding: "14px 16px", width: "100%", border: "none", background: "none", cursor: "pointer", textAlign: "left" }}>
           <i className="ti ti-logout" style={{ fontSize: 17, color: "var(--pm-danger)" }} />
-          <p style={{ fontSize: 14, flex: 1, margin: 0, color: "var(--pm-danger)" }}>Keluar</p>
-        </div>
+          <p style={{ fontSize: 14, flex: 1, margin: 0, color: "var(--pm-danger)" }}>Log Out</p>
+        </button>
       </div>
 
       <div className="pm-tabbar">
-        <button onClick={onHome}><i className="ti ti-home" style={{ fontSize: 20 }} />Beranda</button>
-        <button className="active"><i className="ti ti-user" style={{ fontSize: 20 }} />Profil</button>
+        <button onClick={onHome}><i className="ti ti-home" style={{ fontSize: 20 }} />Home</button>
+        <button className="active"><i className="ti ti-user" style={{ fontSize: 20 }} />Profile</button>
       </div>
     </div>
   );

@@ -25,13 +25,13 @@ function Header({ title, onBack }) {
 
 function ChooseType({ onBack, onSelect }) {
   const options = [
-    { key: "bank", icon: "ti-building-bank", color: "#0A84FF", title: "Rekening Bank", sub: "Rekening di bank manapun" },
+    { key: "bank", icon: "ti-building-bank", color: "#0A84FF", title: "Bank Account", sub: "Any bank account" },
     { key: "emoney", icon: "ti-wallet", color: "#7F77DD", title: "E-money", sub: "GoPay, OVO, Dana, ShopeePay" },
-    { key: "cash", icon: "ti-cash", color: "#30D158", title: "Cash / Dompet", sub: "Uang tunai" },
+    { key: "cash", icon: "ti-cash", color: "#30D158", title: "Cash / Wallet", sub: "Cash" },
   ];
   return (
     <div className="pm-app">
-      <Header title="Jenis Pocket" onBack={onBack} />
+      <Header title="Pocket Type" onBack={onBack} />
       {options.map((o) => (
         <button key={o.key} onClick={() => onSelect(o.key)} className="pm-card" style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, marginBottom: 12, border: "none", cursor: "pointer", boxSizing: "border-box" }}>
           <span style={{ width: 44, height: 44, borderRadius: 12, background: `${o.color}26`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -75,10 +75,10 @@ function ChooseBank({ onBack, onSaved }) {
 
   return (
     <div className="pm-app">
-      <Header title="Pilih Bank" onBack={onBack} />
+      <Header title="Choose Bank" onBack={onBack} />
       <div style={{ display: "flex", alignItems: "center", gap: 10, background: "var(--pm-surface)", borderRadius: 14, padding: "12px 14px", marginBottom: 16 }}>
         <i className="ti ti-search" style={{ fontSize: 16, color: "var(--pm-text-muted)" }} />
-        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari bank..." style={{ background: "none", border: "none", outline: "none", color: "var(--pm-text-primary)", fontSize: 14, flex: 1 }} />
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search bank..." style={{ background: "none", border: "none", outline: "none", color: "var(--pm-text-primary)", fontSize: 14, flex: 1 }} />
       </div>
 
       <div className="pm-card" style={{ padding: 0, marginBottom: 20 }}>
@@ -93,22 +93,22 @@ function ChooseBank({ onBack, onSaved }) {
           <span style={{ width: 30, height: 30, borderRadius: 8, background: "var(--pm-accent-bg)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <i className="ti ti-plus" style={{ fontSize: 14, color: "var(--pm-accent)" }} />
           </span>
-          <span style={{ flex: 1, textAlign: "left", fontSize: 14, color: "var(--pm-accent)" }}>Bank lainnya</span>
+          <span style={{ flex: 1, textAlign: "left", fontSize: 14, color: "var(--pm-accent)" }}>Other bank</span>
         </button>
       </div>
 
       {selected === "manual" && (
-        <input value={manual} onChange={(e) => setManual(e.target.value)} placeholder="Nama bank" className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
+        <input value={manual} onChange={(e) => setManual(e.target.value)} placeholder="Bank name" className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
       )}
 
-      <p className="pm-label">Nama pocket <span style={{ color: "var(--pm-text-muted)" }}>· opsional</span></p>
-      <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="Contoh: BCA Tabungan" className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
+      <p className="pm-label">Pocket name <span style={{ color: "var(--pm-text-muted)" }}>· optional</span></p>
+      <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. BCA Savings" className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
 
-      <p className="pm-label">Saldo awal</p>
+      <p className="pm-label">Initial balance</p>
       <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input" style={{ marginBottom: 6, boxSizing: "border-box" }} />
-      <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: "0 0 24px" }}>Boleh dikosongkan, isi 0 dulu</p>
+      <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: "0 0 24px" }}>Can be left blank, defaults to 0</p>
 
-      <button className="pm-btn-primary" onClick={handleSave} disabled={!canSave || saving}>Simpan Pocket</button>
+      <button className="pm-btn-primary" onClick={handleSave} disabled={!canSave || saving}>Save Pocket</button>
     </div>
   );
 }
@@ -136,7 +136,7 @@ function ChooseEmoney({ onBack, onSaved }) {
 
   return (
     <div className="pm-app">
-      <Header title="Pilih E-money" onBack={onBack} />
+      <Header title="Choose E-money" onBack={onBack} />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
         {options.map((o) => (
           <button key={o.name} onClick={() => setSelected(o.name)} className="pm-card" style={{ textAlign: "center", padding: "20px 14px", border: selected === o.name ? "1.5px solid var(--pm-accent)" : "1.5px solid transparent", cursor: "pointer" }}>
@@ -147,15 +147,15 @@ function ChooseEmoney({ onBack, onSaved }) {
           </button>
         ))}
       </div>
-      <p className="pm-label">Saldo awal</p>
+      <p className="pm-label">Initial balance</p>
       <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input" style={{ marginBottom: 24, boxSizing: "border-box" }} />
-      <button className="pm-btn-primary" onClick={handleSave} disabled={!selected || saving}>Simpan Pocket</button>
+      <button className="pm-btn-primary" onClick={handleSave} disabled={!selected || saving}>Save Pocket</button>
     </div>
   );
 }
 
 function CashForm({ onBack, onSaved }) {
-  const [name, setName] = useState("Dompet Tunai");
+  const [name, setName] = useState("Cash Wallet");
   const [balance, setBalance] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -171,17 +171,17 @@ function CashForm({ onBack, onSaved }) {
 
   return (
     <div className="pm-app">
-      <Header title="Cash / Dompet" onBack={onBack} />
+      <Header title="Cash / Wallet" onBack={onBack} />
       <div style={{ textAlign: "center", marginBottom: 28 }}>
         <span style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(48,209,88,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}>
           <i className="ti ti-cash" style={{ fontSize: 28, color: "var(--pm-success)" }} />
         </span>
       </div>
-      <p className="pm-label">Nama pocket</p>
+      <p className="pm-label">Pocket name</p>
       <input value={name} onChange={(e) => setName(e.target.value)} className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
-      <p className="pm-label">Saldo awal</p>
+      <p className="pm-label">Initial balance</p>
       <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input" style={{ marginBottom: 32, boxSizing: "border-box" }} />
-      <button className="pm-btn-primary" onClick={handleSave} disabled={saving}>Simpan Pocket</button>
+      <button className="pm-btn-primary" onClick={handleSave} disabled={saving}>Save Pocket</button>
     </div>
   );
 }

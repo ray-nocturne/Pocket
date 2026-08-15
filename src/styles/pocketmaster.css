@@ -1,15 +1,15 @@
 :root {
-  --pm-bg: #000000;
-  --pm-surface: #1C1C1E;
-  --pm-surface-2: #2C2C2E;
-  --pm-border: rgba(255, 255, 255, 0.08);
-  --pm-text-primary: #F5F5F7;
-  --pm-text-secondary: #98989D;
-  --pm-text-muted: #636366;
-  --pm-accent: #0A84FF;
-  --pm-accent-bg: rgba(10, 132, 255, 0.15);
-  --pm-success: #30D158;
-  --pm-danger: #FF6B52;
+  --pm-bg: #0B1116;
+  --pm-surface: #131A20;
+  --pm-surface-2: #1B242B;
+  --pm-border: rgba(34, 211, 238, 0.15);
+  --pm-text-primary: #E6FBFF;
+  --pm-text-secondary: #6E93A0;
+  --pm-text-muted: #4A6672;
+  --pm-accent: #22D3EE;
+  --pm-accent-bg: rgba(34, 211, 238, 0.15);
+  --pm-success: #34F5A0;
+  --pm-danger: #FF5C7A;
   --pm-radius-lg: 24px;
   --pm-radius-md: 16px;
   --pm-radius-sm: 12px;
@@ -66,20 +66,67 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .pm-toggle.on .knob { left: 18px; }
 .pm-toggle.off .knob { left: 2px; }
 
-.pm-fab-wrap { position: fixed; bottom: calc(90px + env(safe-area-inset-bottom)); left: 0; right: 0; max-width: 480px; margin: 0 auto; pointer-events: none; height: 0; }
+.pm-fab-wrap {
+  position: fixed;
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  pointer-events: none;
+  height: 0;
+  z-index: 1000;
+}
 .pm-fab {
-  position: absolute; right: 20px; bottom: 0; pointer-events: auto;
-  height: 48px; padding: 0 20px; border-radius: 24px; background: var(--pm-accent); color: #fff;
-  display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
-  border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(10,132,255,0.4); z-index: 10;
-  font-family: var(--pm-font); white-space: nowrap;
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  pointer-events: auto;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 24px;
+  background: var(--pm-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(34,211,238,0.35);
+  z-index: 1001;
+  font-family: var(--pm-font);
+  white-space: nowrap;
 }
 
 .pm-tabbar {
-  position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto;
-  background: #0A0A0A; border-top: 0.5px solid var(--pm-border); display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #060A0D;
+  border-top: 0.5px solid var(--pm-border);
+  display: flex;
   padding: 10px 0 calc(20px + env(safe-area-inset-bottom));
+  z-index: 900;
 }
 .pm-tabbar button { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; font-family: var(--pm-font); }
 .pm-tabbar button.active { color: var(--pm-accent); }
 .pm-tabbar button:not(.active) { color: var(--pm-text-secondary); }
+.pm-segmented-hud { display: flex; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 4px; }
+.pm-segmented-hud button {
+  flex: 1; text-align: center; padding: 9px 0; border-radius: 9px; font-size: 12px; font-weight: 600;
+  color: var(--pm-text-secondary); border: none; background: none; cursor: pointer; font-family: var(--pm-font);
+}
+.pm-segmented-hud button.active { background: var(--pm-accent-bg); color: var(--pm-accent); }
+
+.pm-btn-hud {
+  background: var(--pm-accent-bg); border: 1px solid rgba(34,211,238,0.5); color: var(--pm-accent);
+  text-align: center; padding: 15px; border-radius: 14px; font-size: 13px; font-weight: 600;
+  letter-spacing: 1px; box-shadow: 0 0 16px rgba(34,211,238,0.2); cursor: pointer; width: 100%;
+  font-family: var(--pm-font);
+}
+.pm-btn-hud:disabled { opacity: 0.35; cursor: not-allowed; }

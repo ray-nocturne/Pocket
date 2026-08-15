@@ -106,7 +106,7 @@ function HeaderGreeting({ username, now }) {
 function typeLabel(type) {
   return (
     {
-      bank: "Bank & Cash",
+      bank: "Bank Account",
       emoney: "E-money",
       cash: "Cash",
     }[type] ?? type

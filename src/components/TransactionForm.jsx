@@ -61,6 +61,9 @@ export default function TransactionForm({
   const [date, setDate] = useState(
     new Date().toISOString().slice(0, 10)
   );
+  const [transactionTime, setTransactionTime] = useState(
+    new Date().toTimeString().slice(0, 5)
+  );
   const [paymentMethod, setPaymentMethod] =
     useState("bank_transfer");
 
@@ -188,6 +191,12 @@ export default function TransactionForm({
         setDate(
           data.date ||
             new Date().toISOString().slice(0, 10)
+        );
+
+        setTransactionTime(
+          data.transaction_time
+            ? data.transaction_time.slice(0, 5)
+            : new Date().toTimeString().slice(0, 5)
         );
 
         setPaymentMethod(
@@ -616,6 +625,7 @@ export default function TransactionForm({
         amount,
         description,
         date,
+        transactionTime,
         paymentMethod,
         feeAmount:
           feeEnabled
@@ -936,6 +946,94 @@ export default function TransactionForm({
         </button>
       </div>
 
+      {/* Pocket (moved before amount so available balance is known first) */}
+      {type === "income" && (
+        <Field label="To pocket">
+          <select
+            className="pm-select"
+            value={toPocketId}
+            onChange={(e) =>
+              setToPocketId(e.target.value)
+            }
+          >
+            <option value="">Select pocket</option>
+
+            {pockets.map((p) => (
+              <option
+                key={p.pocket_id}
+                value={p.pocket_id}
+              >
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      {type === "expense" && (
+        <Field
+          label="From pocket"
+          hint={
+            selectedExpensePocket
+              ? `Available: ${formatRp(
+                  availableForTransaction
+                )}`
+              : "Select the pocket that will pay for this expense"
+          }
+        >
+          <select
+            className="pm-select"
+            value={fromPocketId}
+            onChange={(e) =>
+              handleSourcePocketChange(e.target.value)
+            }
+          >
+            <option value="">Select pocket</option>
+
+            {pockets.map((p) => (
+              <option
+                key={p.pocket_id}
+                value={p.pocket_id}
+              >
+                {p.name} · {formatRp(p.balance)}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      {type === "transfer" && (
+        <Field
+          label="From pocket"
+          hint={
+            selectedTransferPocket
+              ? `Available: ${formatRp(
+                  availableForTransaction
+                )}`
+              : "Select the pocket the money will come from"
+          }
+        >
+          <select
+            className="pm-select"
+            value={transferFrom}
+            onChange={(e) =>
+              handleSourcePocketChange(e.target.value)
+            }
+          >
+            <option value="">Select pocket</option>
+
+            {pockets.map((p) => (
+              <option
+                key={p.pocket_id}
+                value={p.pocket_id}
+              >
+                {p.name} · {formatRp(p.balance)}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
       {/* Amount */}
       <div
         style={{
@@ -1043,77 +1141,99 @@ export default function TransactionForm({
 
       {/* Description */}
       {type !== "transfer" && (
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: 16,
-          }}
-        >
+        <Field label="Description">
           <input
+            className="pm-input"
             value={description}
             onChange={(e) =>
-              setDescription(
-                e.target.value
-              )
+              setDescription(e.target.value)
             }
-            placeholder="Transaction description"
-            style={{
-              background: "none",
-              border: "none",
-              outline: "none",
-              color:
-                "var(--pm-text-primary)",
-              fontSize: 15,
-              textAlign:
-                "center",
-              width: "100%",
-              fontFamily:
-                "inherit",
-            }}
+            placeholder="e.g. Lunch at Warteg"
           />
-        </div>
+        </Field>
       )}
 
-      {/* Date */}
+      {/* Date & Time */}
       <div
         style={{
           display: "flex",
-          alignItems:
-            "center",
-          justifyContent:
-            "center",
-          gap: 6,
-          marginBottom: 24,
+          gap: 10,
+          marginBottom: 16,
         }}
       >
-        <i
-          className="ti ti-calendar"
-          style={{
-            fontSize: 14,
-            color:
-              "var(--pm-text-muted)",
-          }}
-        />
+        <div style={{ flex: 1 }}>
+          <p className="pm-label">Date</p>
+          <div
+            className="pm-input"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <i
+              className="ti ti-calendar"
+              style={{
+                fontSize: 16,
+                color: "var(--pm-text-secondary)",
+              }}
+            />
 
-        <input
-          type="date"
-          value={date}
-          onChange={(e) =>
-            setDate(
-              e.target.value
-            )
-          }
-          style={{
-            background: "none",
-            border: "none",
-            outline: "none",
-            color:
-              "var(--pm-text-muted)",
-            fontSize: 13,
-            fontFamily:
-              "inherit",
-          }}
-        />
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              style={{
+                background: "none",
+                border: "none",
+                outline: "none",
+                color: "var(--pm-text-primary)",
+                fontSize: 15,
+                fontFamily: "inherit",
+                flex: 1,
+                colorScheme: "dark",
+              }}
+            />
+          </div>
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <p className="pm-label">Time</p>
+          <div
+            className="pm-input"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <i
+              className="ti ti-clock"
+              style={{
+                fontSize: 16,
+                color: "var(--pm-text-secondary)",
+              }}
+            />
+
+            <input
+              type="time"
+              value={transactionTime}
+              onChange={(e) =>
+                setTransactionTime(e.target.value)
+              }
+              style={{
+                background: "none",
+                border: "none",
+                outline: "none",
+                color: "var(--pm-text-primary)",
+                fontSize: 15,
+                fontFamily: "inherit",
+                flex: 1,
+                colorScheme: "dark",
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* ================================================================== */}
@@ -1121,39 +1241,6 @@ export default function TransactionForm({
       {/* ================================================================== */}
       {type === "income" && (
         <>
-          <Field label="To pocket">
-            <select
-              className="pm-select"
-              value={
-                toPocketId
-              }
-              onChange={(e) =>
-                setToPocketId(
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Select pocket
-              </option>
-
-              {pockets.map(
-                (p) => (
-                  <option
-                    key={
-                      p.pocket_id
-                    }
-                    value={
-                      p.pocket_id
-                    }
-                  >
-                    {p.name}
-                  </option>
-                )
-              )}
-            </select>
-          </Field>
-
           <Field
             label="Source of funds"
             hint="Free text, not from any pocket"
@@ -1208,51 +1295,6 @@ export default function TransactionForm({
       {/* ================================================================== */}
       {type === "expense" && (
         <>
-          <Field
-            label="From pocket"
-            hint={
-              selectedExpensePocket
-                ? `Available: ${formatRp(
-                    availableForTransaction
-                  )}`
-                : "Select the pocket that will pay for this expense"
-            }
-          >
-            <select
-              className="pm-select"
-              value={
-                fromPocketId
-              }
-              onChange={(e) =>
-                handleSourcePocketChange(
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Select pocket
-              </option>
-
-              {pockets.map(
-                (p) => (
-                  <option
-                    key={
-                      p.pocket_id
-                    }
-                    value={
-                      p.pocket_id
-                    }
-                  >
-                    {p.name} ·{" "}
-                    {formatRp(
-                      p.balance
-                    )}
-                  </option>
-                )
-              )}
-            </select>
-          </Field>
-
           <Field label="For whom">
             <input
               className="pm-input"
@@ -1381,51 +1423,6 @@ export default function TransactionForm({
       {/* ================================================================== */}
       {type === "transfer" && (
         <>
-          <Field
-            label="From pocket"
-            hint={
-              selectedTransferPocket
-                ? `Available: ${formatRp(
-                    availableForTransaction
-                  )}`
-                : "Select the pocket the money will come from"
-            }
-          >
-            <select
-              className="pm-select"
-              value={
-                transferFrom
-              }
-              onChange={(e) =>
-                handleSourcePocketChange(
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Select pocket
-              </option>
-
-              {pockets.map(
-                (p) => (
-                  <option
-                    key={
-                      p.pocket_id
-                    }
-                    value={
-                      p.pocket_id
-                    }
-                  >
-                    {p.name} ·{" "}
-                    {formatRp(
-                      p.balance
-                    )}
-                  </option>
-                )
-              )}
-            </select>
-          </Field>
-
           <div
             style={{
               display: "flex",

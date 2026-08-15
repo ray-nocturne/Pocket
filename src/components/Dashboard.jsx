@@ -156,6 +156,8 @@ function groupByDate(transactions) {
 function DonutMini({
   segments,
   size = 76,
+  centerValue,
+  centerLabel,
 }) {
   const r = size / 2 - 6;
   const c = 2 * Math.PI * r;
@@ -163,46 +165,92 @@ function DonutMini({
   let offset = 0;
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      style={{ flexShrink: 0 }}
+    <div
+      style={{
+        position: "relative",
+        width: size,
+        height: size,
+        flexShrink: 0,
+      }}
     >
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="#2C2C2E"
-        strokeWidth="12"
-      />
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="#2C2C2E"
+          strokeWidth="12"
+        />
 
-      {segments.map((s, i) => {
-        const len = (s.pct / 100) * c;
+        {segments.map((s, i) => {
+          const len = (s.pct / 100) * c;
 
-        const el = (
-          <circle
-            key={i}
-            cx={size / 2}
-            cy={size / 2}
-            r={r}
-            fill="none"
-            stroke={s.color}
-            strokeWidth="12"
-            strokeDasharray={`${len} ${c}`}
-            strokeDashoffset={-offset}
-            transform={`rotate(-90 ${
-              size / 2
-            } ${size / 2})`}
-          />
-        );
+          const el = (
+            <circle
+              key={i}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={s.color}
+              strokeWidth="12"
+              strokeDasharray={`${len} ${c}`}
+              strokeDashoffset={-offset}
+              transform={`rotate(-90 ${
+                size / 2
+              } ${size / 2})`}
+            />
+          );
 
-        offset += len;
+          offset += len;
 
-        return el;
-      })}
-    </svg>
+          return el;
+        })}
+      </svg>
+
+      {(centerValue !== undefined || centerLabel) && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {centerValue !== undefined && (
+            <p
+              style={{
+                fontSize: size * 0.18,
+                fontWeight: 700,
+                margin: 0,
+                color: "var(--pm-text-primary)",
+              }}
+            >
+              {centerValue}
+            </p>
+          )}
+
+          {centerLabel && (
+            <p
+              style={{
+                fontSize: size * 0.09,
+                color: "var(--pm-text-secondary)",
+                margin: 0,
+              }}
+            >
+              {centerLabel}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -327,6 +375,8 @@ export default function Dashboard({
     totalBalance,
     income,
     expense,
+    incomeCount,
+    expenseCount,
     totalDebt,
   } = data;
 
@@ -335,6 +385,7 @@ export default function Dashboard({
   const pocketSlices = pockets.map(
     (p, i) => ({
       label: p.name,
+      type: p.type,
       pct:
         totalBalance > 0
           ? (Number(p.balance) /
@@ -488,326 +539,661 @@ export default function Dashboard({
         now={now}
       />
 
-      <h1
-        style={{
-          fontSize: 32,
-          fontWeight: 600,
-          margin: "8px 0 0",
-          letterSpacing: "-0.5px",
-        }}
-      >
-        {fmt(totalBalance)}
-      </h1>
-
-      <p
-        style={{
-          fontSize: 12,
-          color: "var(--pm-text-secondary)",
-          margin: "4px 0 20px",
-        }}
-      >
-        Total saldo dari{" "}
-        {pockets.length} pocket
-      </p>
-
-      {/* Dashboard cards */}
-
       <div
-        ref={carouselRef}
-        onScroll={handleScroll}
+        className="pm-card pm-card-hud"
         style={{
-          display: "flex",
-          gap: 12,
-          overflowX: "auto",
-          marginBottom: 10,
-          scrollSnapType: "x mandatory",
+          margin: "8px 0 20px",
         }}
       >
-        <div
-          className="pm-card"
+        <h1
+          className="pm-num"
           style={{
-            flex: "0 0 85%",
-            scrollSnapAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
+            fontSize: 32,
+            fontWeight: 600,
+            margin: 0,
+            letterSpacing: "-0.5px",
           }}
         >
-          <DonutMini
-            segments={[
-              {
-                pct:
-                  income + expense > 0
-                    ? (income /
-                        (income +
-                          expense)) *
-                      100
-                    : 0,
-                color: "#30D158",
-              },
-              {
-                pct:
-                  income + expense > 0
-                    ? (expense /
-                        (income +
-                          expense)) *
-                      100
-                    : 0,
-                color: "#FF6B52",
-              },
-            ]}
-          />
+          {fmt(totalBalance)}
+        </h1>
 
-          <div style={{ flex: 1 }}>
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--pm-text-secondary)",
+            margin: "4px 0 14px",
+          }}
+        >
+          Total saldo dari{" "}
+          {pockets.length} pocket
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              background: "var(--pm-bg)",
+              border: "1px solid var(--pm-border)",
+              borderRadius: 8,
+              padding: "10px 12px",
+            }}
+          >
             <p
               style={{
-                fontSize: 13,
-                fontWeight: 600,
-                margin: "0 0 10px",
+                fontSize: 10,
+                color: "var(--pm-text-secondary)",
+                margin: "0 0 4px",
               }}
             >
-              Pemasukan vs Pengeluaran
+              Income transactions
             </p>
-
-            <LegendRow
-              color="#30D158"
-              label="Pemasukan"
-              sub={fmt(income)}
-            />
-
-            <LegendRow
-              color="#FF6B52"
-              label="Pengeluaran"
-              sub={fmt(expense)}
-            />
+            <p
+              className="pm-num"
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                margin: 0,
+                color: "var(--pm-success)",
+              }}
+            >
+              {incomeCount}x
+            </p>
           </div>
-        </div>
-
-        <div
-          className="pm-card"
-          style={{
-            flex: "0 0 85%",
-            scrollSnapAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-          }}
-        >
-          <DonutMini
-            segments={pocketSlices}
-          />
 
           <div
             style={{
               flex: 1,
-              maxHeight: 90,
-              overflowY: "auto",
+              background: "var(--pm-bg)",
+              border: "1px solid var(--pm-border)",
+              borderRadius: 8,
+              padding: "10px 12px",
+            }}
+          >
+            <p
+              style={{
+                fontSize: 10,
+                color: "var(--pm-text-secondary)",
+                margin: "0 0 4px",
+              }}
+            >
+              Expense transactions
+            </p>
+            <p
+              className="pm-num"
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                margin: 0,
+                color: "var(--pm-danger)",
+              }}
+            >
+              {expenseCount}x
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Pockets */}
+
+      <p
+        className="pm-label"
+        style={{
+          fontSize: 15,
+          fontWeight: 600,
+          color: "var(--pm-text-primary)",
+          marginBottom: 10,
+        }}
+      >
+        Pockets
+      </p>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          overflowX: "auto",
+          marginBottom: 24,
+          paddingBottom: 4,
+          scrollSnapType: "x mandatory",
+        }}
+      >
+        <div
+          className="pm-card pm-card-hud"
+          style={{
+            flex: "0 0 100%",
+            scrollSnapAlign: "start",
+          }}
+        >
+          <p
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              margin: "0 0 16px",
+            }}
+          >
+            Pockets breakdown
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 24,
+            }}
+          >
+            <DonutMini
+              segments={pocketSlices}
+              size={110}
+              centerValue={pockets.length}
+              centerLabel="pockets"
+            />
+
+            <div
+              style={{
+                flex: 1,
+                maxHeight: 150,
+                overflowY: "auto",
+              }}
+            >
+              {(() => {
+                const orderedTypes = ["bank", "emoney", "cash"];
+                const groups = orderedTypes
+                  .map((type) => ({
+                    type,
+                    items: pocketSlices
+                      .filter((s) => s.type === type)
+                      .sort((a, b) => b.amount - a.amount),
+                  }))
+                  .filter((g) => g.items.length > 0);
+
+                return groups.map((g, gi) => (
+                  <div key={g.type}>
+                    <p
+                      style={{
+                        fontSize: 10,
+                        color: "var(--pm-text-muted)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        margin: gi === 0 ? "0 0 4px" : "10px 0 4px",
+                        paddingTop: gi === 0 ? 0 : 8,
+                        borderTop:
+                          gi === 0
+                            ? "none"
+                            : "1px solid var(--pm-border)",
+                      }}
+                    >
+                      {typeLabel(g.type)}
+                    </p>
+
+                    {g.items.map((s) => (
+                      <div
+                        key={s.label}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "6px 0",
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            fontSize: 13,
+                            minWidth: 0,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              background: s.color,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span
+                            style={{
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              maxWidth: 130,
+                            }}
+                          >
+                            {s.label}
+                          </span>
+                        </span>
+
+                        <span
+                          className="pm-num"
+                          style={{
+                            fontSize: 13,
+                            color: "var(--pm-text-secondary)",
+                            flexShrink: 0,
+                            marginLeft: 10,
+                          }}
+                        >
+                          {s.pct.toFixed(1)}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+
+          <p
+            style={{
+              fontSize: 11,
+              color: "var(--pm-text-secondary)",
+              margin: "12px 0 0",
+            }}
+          >
+            Swipe for detail of each pocket &rarr;
+          </p>
+        </div>
+
+        {pockets.map((p) => (
+          <button
+            key={p.pocket_id}
+            onClick={() => onOpenPocket?.(p.pocket_id)}
+            className="pm-card pm-card-hud"
+            style={{
+              flex: "0 0 100%",
+              scrollSnapAlign: "start",
+              textAlign: "left",
+              border: "1px solid var(--pm-border)",
+              cursor: "pointer",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: "var(--pm-bg)",
+                  border: "1px solid var(--pm-accent)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--pm-accent)",
+                  fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                <i
+                  className={`ti ti-${
+                    p.type === "bank"
+                      ? "building-bank"
+                      : p.type === "emoney"
+                      ? "device-mobile"
+                      : "cash"
+                  }`}
+                />
+              </div>
+
+              <div style={{ minWidth: 0 }}>
+                <p
+                  style={{
+                    fontSize: 13,
+                    margin: 0,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {p.name}
+                </p>
+                <p
+                  style={{
+                    fontSize: 10,
+                    color: "var(--pm-text-secondary)",
+                    margin: 0,
+                  }}
+                >
+                  {typeLabel(p.type)}
+                </p>
+              </div>
+            </div>
+
+            <p
+              className="pm-num"
+              style={{
+                fontSize: 19,
+                fontWeight: 700,
+                margin: "0 0 12px",
+              }}
+            >
+              {p.balance < 0 ? "-" : ""}
+              {fmt(p.balance)}
+            </p>
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <div
+                style={{
+                  flex: 1,
+                  background: "var(--pm-bg)",
+                  border: "1px solid var(--pm-border)",
+                  borderRadius: 6,
+                  padding: "6px 8px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 9,
+                    color: "var(--pm-text-secondary)",
+                    margin: "0 0 2px",
+                  }}
+                >
+                  Income
+                </p>
+                <p
+                  className="pm-num"
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    margin: 0,
+                    color: "var(--pm-success)",
+                  }}
+                >
+                  {p.incomeCount}x
+                </p>
+              </div>
+
+              <div
+                style={{
+                  flex: 1,
+                  background: "var(--pm-bg)",
+                  border: "1px solid var(--pm-border)",
+                  borderRadius: 6,
+                  padding: "6px 8px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 9,
+                    color: "var(--pm-text-secondary)",
+                    margin: "0 0 2px",
+                  }}
+                >
+                  Expense
+                </p>
+                <p
+                  className="pm-num"
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    margin: 0,
+                    color: "var(--pm-danger)",
+                  }}
+                >
+                  {p.expenseCount}x
+                </p>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Debts */}
+
+      <p
+        className="pm-label"
+        style={{
+          fontSize: 15,
+          fontWeight: 600,
+          color: "var(--pm-text-primary)",
+          marginBottom: 10,
+        }}
+      >
+        Debts
+      </p>
+
+      {debts.length > 0 ? (
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            overflowX: "auto",
+            marginBottom: 24,
+            paddingBottom: 4,
+            scrollSnapType: "x mandatory",
+          }}
+        >
+          <div
+            className="pm-card pm-card-hud"
+            style={{
+              flex: "0 0 100%",
+              scrollSnapAlign: "start",
             }}
           >
             <p
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                margin: "0 0 10px",
+                margin: "0 0 16px",
               }}
             >
-              Saldo per Pocket
-            </p>
-
-            {pocketSlices.map((s) => (
-              <LegendRow
-                key={s.label}
-                color={s.color}
-                label={s.label}
-                sub={`${s.pct.toFixed(
-                  1
-                )}% · ${fmt(s.amount)}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div
-          className="pm-card"
-          style={{
-            flex: "0 0 85%",
-            scrollSnapAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            gap: 16,
-          }}
-        >
-          {debts.length > 0 ? (
-            <>
-              <DonutMini
-                segments={debtSlices}
-              />
-
-              <div
-                style={{
-                  flex: 1,
-                  maxHeight: 90,
-                  overflowY: "auto",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    margin: "0 0 10px",
-                  }}
-                >
-                  Hutang Berjalan
-                </p>
-
-                {debtSlices.map((s) => (
-                  <LegendRow
-                    key={s.label}
-                    color={s.color}
-                    label={s.label}
-                    sub={`${s.pct.toFixed(
-                      1
-                    )}% · ${fmt(s.amount)}`}
-                  />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div
-              style={{
-                textAlign: "center",
-                width: "100%",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  margin: "0 0 8px",
-                }}
-              >
-                Hutang Berjalan
-              </p>
-
-              <p
-                style={{
-                  fontSize: 12,
-                  color:
-                    "var(--pm-text-secondary)",
-                  margin: "0 0 10px",
-                }}
-              >
-                Belum ada hutang tercatat
-              </p>
-
-              <button
-                onClick={onAddDebt}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "var(--pm-accent)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                + Tambah Hutang
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: 6,
-          marginBottom: 24,
-        }}
-      >
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background:
-                i === activeCard
-                  ? "var(--pm-accent)"
-                  : "#3A3A3C",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Pockets */}
-
-      {Object.entries(grouped).map(
-        ([type, list]) => (
-          <div
-            key={type}
-            style={{
-              marginBottom: 16,
-            }}
-          >
-            <p className="pm-label">
-              {typeLabel(type)}
+              Debts breakdown
             </p>
 
             <div
               style={{
                 display: "flex",
-                gap: 10,
-                overflowX: "auto",
+                alignItems: "center",
+                gap: 24,
               }}
             >
-              {list.map((p) => (
-                <button
-                  key={p.pocket_id}
-                  onClick={() =>
-                    onOpenPocket?.(
-                      p.pocket_id
-                    )
-                  }
-                  className="pm-card"
+              <DonutMini
+                segments={debtSlices}
+                size={110}
+                centerValue={debts.length}
+                centerLabel={debts.length > 1 ? "debts" : "debt"}
+              />
+
+              <div
+                style={{
+                  flex: 1,
+                  maxHeight: 150,
+                  overflowY: "auto",
+                }}
+              >
+                {debtSlices.map((s) => (
+                  <div
+                    key={s.label}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "6px 0",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        fontSize: 13,
+                        minWidth: 0,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: s.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: 130,
+                        }}
+                      >
+                        {s.label}
+                      </span>
+                    </span>
+
+                    <span
+                      className="pm-num"
+                      style={{
+                        fontSize: 13,
+                        color: "var(--pm-text-secondary)",
+                        flexShrink: 0,
+                        marginLeft: 10,
+                      }}
+                    >
+                      {s.pct.toFixed(1)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p
+              style={{
+                fontSize: 11,
+                color: "var(--pm-text-secondary)",
+                margin: "12px 0 0",
+              }}
+            >
+              Swipe for detail of each debt &rarr;
+            </p>
+          </div>
+
+          {debts.map((d) => (
+            <div
+              key={d.debt_id}
+              className="pm-card pm-card-hud"
+              style={{
+                flex: "0 0 100%",
+                scrollSnapAlign: "start",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 14,
+                }}
+              >
+                <div
                   style={{
-                    minWidth: 130,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 8,
+                    background: "var(--pm-bg)",
+                    border: "1px solid #F5A623",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#F5A623",
+                    fontSize: 16,
                     flexShrink: 0,
-                    textAlign: "left",
-                    border: "none",
-                    cursor: "pointer",
                   }}
                 >
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color:
-                        "var(--pm-text-secondary)",
-                      margin: "0 0 6px",
-                    }}
-                  >
-                    {p.name}
-                  </p>
+                  <i className="ti ti-credit-card" />
+                </div>
 
+                <div style={{ minWidth: 0 }}>
                   <p
                     style={{
-                      fontSize: 17,
-                      fontWeight: 600,
+                      fontSize: 13,
                       margin: 0,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
-                    {p.balance < 0
-                      ? "-"
-                      : ""}
-                    {fmt(p.balance)}
+                    {d.name}
                   </p>
-                </button>
-              ))}
+                  {d.monthly_installment && (
+                    <p
+                      style={{
+                        fontSize: 10,
+                        color: "var(--pm-text-secondary)",
+                        margin: 0,
+                      }}
+                    >
+                      Cicilan {fmt(d.monthly_installment)}/bln
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <p
+                className="pm-num"
+                style={{
+                  fontSize: 19,
+                  fontWeight: 700,
+                  margin: "0 0 4px",
+                  color: "#F5A623",
+                }}
+              >
+                {fmt(d.remaining)}
+              </p>
+
+              <p
+                style={{
+                  fontSize: 10,
+                  color: "var(--pm-text-secondary)",
+                  margin: 0,
+                }}
+              >
+                sisa hutang
+              </p>
             </div>
-          </div>
-        )
+          ))}
+        </div>
+      ) : (
+        <div
+          className="pm-card"
+          style={{ textAlign: "center", marginBottom: 24 }}
+        >
+          <p
+            style={{
+              fontSize: 13,
+              color: "var(--pm-text-secondary)",
+              margin: "0 0 10px",
+            }}
+          >
+            Belum ada hutang tercatat
+          </p>
+
+          <button
+            onClick={onAddDebt}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--pm-accent)",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            + Tambah Hutang
+          </button>
+        </div>
       )}
 
       {/* Recent Transactions */}
@@ -937,11 +1323,13 @@ export default function Dashboard({
                       margin: 0,
                     }}
                   >
-                    {tx.description ||
-                      (tx.type ===
-                      "transfer"
-                        ? "Pindah Pocket"
-                        : tx.category?.name)}
+                    {tx.category?.name ||
+                      (tx.type === "transfer"
+                        ? "Transfer"
+                        : "Lainnya")}
+                    {tx.description
+                      ? ` · ${tx.description}`
+                      : ""}
                   </p>
 
                   <p
@@ -952,19 +1340,19 @@ export default function Dashboard({
                       margin: "2px 0 0",
                     }}
                   >
-                    {tx.category?.name ||
-                      (tx.type ===
-                      "transfer"
-                        ? "Transfer"
-                        : "")}
-
                     {pocketName
-                      ? ` · ${pocketName}`
+                      ? `${pocketName} · `
                       : ""}
+                    {formatDate(new Date(tx.date))}
+                    {" · "}
+                    {tx.transaction_time
+                      ? tx.transaction_time.slice(0, 5)
+                      : formatTime(new Date(tx.created_at))}
                   </p>
                 </div>
 
                 <p
+                  className="pm-num"
                   style={{
                     fontSize: 14,
                     fontWeight: 600,
@@ -976,6 +1364,7 @@ export default function Dashboard({
                           "expense"
                         ? "var(--pm-danger)"
                         : "var(--pm-text-primary)",
+                    flexShrink: 0,
                   }}
                 >
                   {isIncome
@@ -985,6 +1374,15 @@ export default function Dashboard({
                     : ""}
                   {fmt(tx.amount)}
                 </p>
+
+                <i
+                  className="ti ti-chevron-right"
+                  style={{
+                    fontSize: 16,
+                    color: "var(--pm-text-secondary)",
+                    flexShrink: 0,
+                  }}
+                />
               </button>
             );
           })}
@@ -1035,8 +1433,7 @@ export default function Dashboard({
           className="pm-fab"
           onClick={onAddTransaction}
         >
-          <PlusIcon />
-          <span>Tambah Transaksi</span>
+          <PlusIcon size={24} />
         </button>
       </div>
 

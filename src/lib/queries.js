@@ -346,6 +346,10 @@ export async function addTransaction(
     date:
       payload.date,
 
+    transaction_time:
+      payload.transactionTime ??
+      null,
+
     payment_method:
       payload.paymentMethod,
 
@@ -422,6 +426,7 @@ const TRANSACTION_SELECT = `
   amount,
   description,
   date,
+  transaction_time,
   created_at,
   payment_method,
   fee_amount,
@@ -560,6 +565,10 @@ export async function updateTransaction(
 
     date:
       payload.date,
+
+    transaction_time:
+      payload.transactionTime ??
+      null,
 
     payment_method:
       payload.paymentMethod,
@@ -739,7 +748,7 @@ export async function getDashboardData(
     supabase
       .from("transactions")
       .select(
-        "type, amount"
+        "type, amount, from_pocket_id, to_pocket_id"
       )
       .eq(
         "owner_id",
@@ -776,37 +785,50 @@ export async function getDashboardData(
       0
     );
 
-  const income =
-    monthTx
-      .filter(
-        (tx) =>
-          tx.type ===
-          "income"
-      )
-      .reduce(
-        (sum, tx) =>
-          sum +
-          Number(
-            tx.amount
-          ),
-        0
-      );
+  const incomeTx = monthTx.filter(
+    (tx) => tx.type === "income"
+  );
 
-  const expense =
-    monthTx
-      .filter(
-        (tx) =>
-          tx.type ===
-          "expense"
-      )
-      .reduce(
-        (sum, tx) =>
-          sum +
-          Number(
-            tx.amount
-          ),
-        0
-      );
+  const expenseTx = monthTx.filter(
+    (tx) => tx.type === "expense"
+  );
+
+  const income = incomeTx.reduce(
+    (sum, tx) => sum + Number(tx.amount),
+    0
+  );
+
+  const expense = expenseTx.reduce(
+    (sum, tx) => sum + Number(tx.amount),
+    0
+  );
+
+  const incomeCount = incomeTx.length;
+  const expenseCount = expenseTx.length;
+
+  const pocketsWithCounts = pockets.map(
+    (pocket) => {
+      const incomeCountForPocket =
+        monthTx.filter(
+          (tx) =>
+            tx.type === "income" &&
+            tx.to_pocket_id === pocket.pocket_id
+        ).length;
+
+      const expenseCountForPocket =
+        monthTx.filter(
+          (tx) =>
+            tx.type === "expense" &&
+            tx.from_pocket_id === pocket.pocket_id
+        ).length;
+
+      return {
+        ...pocket,
+        incomeCount: incomeCountForPocket,
+        expenseCount: expenseCountForPocket,
+      };
+    }
+  );
 
   const totalDebt =
     debts.reduce(
@@ -819,11 +841,13 @@ export async function getDashboardData(
     );
 
   return {
-    pockets,
+    pockets: pocketsWithCounts,
     debts,
     totalBalance,
     income,
     expense,
+    incomeCount,
+    expenseCount,
     totalDebt,
   };
 }

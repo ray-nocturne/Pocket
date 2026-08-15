@@ -14,6 +14,12 @@
   --pm-radius-md: 16px;
   --pm-radius-sm: 12px;
   --pm-font: -apple-system, "SF Pro Display", "Inter", system-ui, sans-serif;
+  --pm-font-mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+
+.pm-num {
+  font-family: var(--pm-font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 body { margin: 0; background: var(--pm-bg); min-height: 100vh; }
@@ -31,7 +37,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
   position: relative;
 }
 
-.pm-card { background: var(--pm-surface); border-radius: var(--pm-radius-md); padding: 16px; }
+.pm-card { background: var(--pm-surface); border-radius: var(--pm-radius-md); padding: 16px; border: 1px solid var(--pm-border); box-sizing: border-box; }
 .pm-label { font-size: 13px; color: var(--pm-text-secondary); margin: 0 0 8px; }
 .pm-row { display: flex; align-items: center; gap: 12px; padding: 13px 4px; border-bottom: 0.5px solid var(--pm-border); }
 .pm-row:last-child { border-bottom: none; }
@@ -82,22 +88,20 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
   right: 20px;
   bottom: 0;
   pointer-events: auto;
-  height: 48px;
-  padding: 0 20px;
-  border-radius: 24px;
-  background: var(--pm-accent);
-  color: #fff;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(34, 211, 238, 0.5);
+  color: var(--pm-accent);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  justify-content: center;
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(34,211,238,0.35);
   z-index: 1001;
   font-family: var(--pm-font);
-  white-space: nowrap;
 }
 
 .pm-tabbar {
@@ -130,3 +134,25 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
   font-family: var(--pm-font);
 }
 .pm-btn-hud:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.pm-card-hud { position: relative; }
+.pm-card-hud::before,
+.pm-card-hud::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+.pm-card-hud::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--pm-accent);
+  border-left: 2px solid var(--pm-accent);
+}
+.pm-card-hud::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--pm-accent);
+  border-right: 2px solid var(--pm-accent);
+}

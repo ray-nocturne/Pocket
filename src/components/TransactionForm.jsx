@@ -1325,16 +1325,32 @@ export default function TransactionForm({
                 Select category
               </option>
 
-              {expenseCategories.map(
-                (c) => (
-                  <option
-                    key={c.id}
-                    value={c.id}
-                  >
-                    {c.name}
-                  </option>
+              {Object.entries(
+                expenseCategories.reduce(
+                  (groups, c) => {
+                    const key =
+                      c.group_name || "General";
+                    (groups[key] =
+                      groups[key] || []).push(c);
+                    return groups;
+                  },
+                  {}
                 )
-              )}
+              ).map(([groupName, items]) => (
+                <optgroup
+                  key={groupName}
+                  label={groupName}
+                >
+                  {items.map((c) => (
+                    <option
+                      key={c.id}
+                      value={c.id}
+                    >
+                      {c.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </Field>
 

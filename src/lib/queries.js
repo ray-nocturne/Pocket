@@ -103,6 +103,7 @@ export async function getCategories(type) {
     .select("*")
     .eq("type", type)
     .eq("owner_id", userId)
+    .order("group_name")
     .order("name");
 
   if (error) throw error;

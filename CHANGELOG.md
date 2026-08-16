@@ -7,6 +7,12 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 8)
+
+### Changed
+- Renamed the "Dompet Tunai" cash pocket to "Cash" (Indonesian leftover, this one was original sample data rather than a deliberate user-chosen name).
+- Replaced all remaining hardcoded Indonesian UI strings across 7 files (loading states, error messages, empty-state copy, button labels in Category, Dashboard, DebtDetail, Debts, TransactionForm, Transactions, and App) with English equivalents, completing the earlier UI language migration. User-chosen data (pocket names like "BCA Pribadi", debt names like "Cicil Retno" and "Rupiah Cepat") is intentionally left untouched since it's user customization, not app interface text.
+
 ## 2026-08-16 (cont'd 7)
 
 ### Added

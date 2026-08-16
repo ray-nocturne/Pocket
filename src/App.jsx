@@ -72,7 +72,7 @@ export default function App() {
   if (session === undefined) {
     return (
       <div className="pm-app">
-        Memuat...
+        Loading...
       </div>
     );
   }

@@ -82,7 +82,7 @@ export default function DebtDetail({
         if (!cancelled) {
           setError(
             err.message ||
-              "Gagal memuat detail hutang."
+              "Failed to load debt detail."
           );
         }
       })
@@ -108,7 +108,7 @@ export default function DebtDetail({
             marginTop: 40,
           }}
         >
-          Memuat...
+          Loading...
         </p>
       </div>
     );

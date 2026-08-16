@@ -31,7 +31,7 @@ export default function Debts({
 
         if (!cancelled) {
           setError(
-            err.message || "Gagal memuat hutang."
+            err.message || "Failed to load debts."
           );
         }
       })
@@ -120,7 +120,7 @@ export default function Debts({
               margin: "3px 0 0",
             }}
           >
-            Kelola hutang dan kewajibanmu
+            Manage your debts and obligations
           </p>
         </div>
       </div>
@@ -245,7 +245,7 @@ export default function Debts({
               color: "var(--pm-text-secondary)",
             }}
           >
-            Memuat hutang...
+            Loading debts...
           </p>
         </div>
       )}
@@ -320,8 +320,8 @@ export default function Debts({
               color: "var(--pm-text-secondary)",
             }}
           >
-            Tambahkan hutang pertamamu untuk mulai
-            melacak kewajiban.
+            Add your first debt to start
+            tracking your obligations.
           </p>
 
           <button
@@ -329,7 +329,7 @@ export default function Debts({
             className="pm-btn-primary"
             onClick={onAddDebt}
           >
-            + Tambah Hutang
+            + Add Debt
           </button>
         </div>
       )}
@@ -561,7 +561,7 @@ export default function Debts({
                 padding: "8px 0 16px",
               }}
             >
-              + Tambah Hutang
+              + Add Debt
             </button>
           </>
         )}

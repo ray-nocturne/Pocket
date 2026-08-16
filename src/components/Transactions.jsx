@@ -93,7 +93,7 @@ export default function Transactions({
         if (!cancelled) {
           setError(
             err.message ||
-              "Gagal memuat transaksi."
+              "Failed to load transactions."
           );
         }
       })
@@ -137,7 +137,7 @@ export default function Transactions({
 
       setError(
         err.message ||
-          "Gagal memuat transaksi berikutnya."
+          "Failed to load more transactions."
       );
     } finally {
       setLoadingMore(false);
@@ -220,7 +220,7 @@ export default function Transactions({
               color: "var(--pm-text-secondary)",
             }}
           >
-            Memuat transaksi...
+            Loading transactions...
           </p>
         </div>
       )}
@@ -512,7 +512,7 @@ export default function Transactions({
                 }}
               >
                 {loadingMore
-                  ? "Memuat..."
+                  ? "Loading..."
                   : "Muat Lebih Banyak"}
               </button>
             )}

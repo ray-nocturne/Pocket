@@ -915,7 +915,7 @@ export default function TransactionForm({
                 "var(--pm-text-secondary)",
             }}
           >
-            Memuat transaksi...
+            Loading transaction...
           </p>
         </div>
       </div>

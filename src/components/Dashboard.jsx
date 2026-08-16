@@ -384,7 +384,7 @@ export default function Dashboard({
   if (loading) {
     return (
       <div className="pm-app">
-        Memuat...
+        Loading...
       </div>
     );
   }
@@ -392,7 +392,7 @@ export default function Dashboard({
   if (!data) {
     return (
       <div className="pm-app">
-        <p>Gagal memuat dashboard.</p>
+        <p>Failed to load dashboard.</p>
       </div>
     );
   }
@@ -556,7 +556,7 @@ export default function Dashboard({
               margin: "0 0 28px",
             }}
           >
-            Tambah pocket pertamamu
+            Add your first pocket
             untuk mulai mencatat
           </p>
 
@@ -564,7 +564,7 @@ export default function Dashboard({
             className="pm-btn-primary"
             onClick={onAddPocket}
           >
-            + Tambah Pocket
+            + Add Pocket
           </button>
         </div>
 
@@ -1316,7 +1316,7 @@ export default function Dashboard({
               cursor: "pointer",
             }}
           >
-            + Tambah Hutang
+            + Add Debt
           </button>
         </div>
       )}

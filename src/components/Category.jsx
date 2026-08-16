@@ -37,7 +37,7 @@ export default function Category({
         console.error("Category loading error:", err);
 
         if (!cancelled) {
-          setError(err.message || "Gagal memuat kategori.");
+          setError(err.message || "Failed to load categories.");
         }
       })
       .finally(() => {
@@ -200,7 +200,7 @@ export default function Category({
               color: "var(--pm-text-secondary)",
             }}
           >
-            Memuat kategori...
+            Loading categories...
           </p>
         </div>
       )}

@@ -1213,14 +1213,19 @@ export default function TransactionForm({
         }}
       >
         <input
-          type="number"
-          value={amount}
+          type="text"
+          inputMode="numeric"
+          value={
+            amount
+              ? Number(amount).toLocaleString("id-ID")
+              : ""
+          }
           disabled={
             amountDisabled
           }
           onChange={(e) =>
             setAmount(
-              e.target.value
+              e.target.value.replace(/\D/g, "")
             )
           }
           placeholder="Rp0"
@@ -1952,14 +1957,17 @@ export default function TransactionForm({
           }}
         >
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             className="pm-input"
             value={
               feeAmount
+                ? Number(feeAmount).toLocaleString("id-ID")
+                : ""
             }
             onChange={(e) =>
               setFeeAmount(
-                e.target.value
+                e.target.value.replace(/\D/g, "")
               )
             }
             placeholder="Fee amount"

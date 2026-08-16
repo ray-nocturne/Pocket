@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 7)
+
+### Added
+- Thousand-separator formatting (e.g. `1.000.000`) on the Amount and Fee amount fields in TransactionForm while typing, making large nominal values easier to read and verify. Underlying stored value remains a plain number — only the input display is formatted, so validation, balance checks, and the saved transaction amount are unaffected.
+
 ## 2026-08-16 (cont'd 6)
 
 ### Fixed

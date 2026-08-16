@@ -23,7 +23,7 @@ function pocketIcon(type) {
 
 const TYPE_ORDER = ["bank", "emoney", "cash"];
 
-export default function AllPockets({ onOpenPocket, onAddPocket, onHome, onCategory, onBudget, onOpenProfile }) {
+export default function AllPockets({ onOpenPocket, onAddPocket, onHome, onOpenCategory, onBudget, onOpenProfile }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -171,7 +171,7 @@ export default function AllPockets({ onOpenPocket, onAddPocket, onHome, onCatego
         active="pocket"
         onHome={onHome}
         onPocket={() => {}}
-        onCategory={onCategory}
+        onCategory={onOpenCategory}
         onBudget={onBudget}
         onProfile={onOpenProfile}
       />

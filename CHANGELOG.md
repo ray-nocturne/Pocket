@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 3)
+
+### Fixed
+- "Category" footer tab did nothing when navigating from the Pocket screen (worked fine from Home/Profile). `AllPockets.jsx` destructured the prop as `onCategory` while `App.jsx` passed it as `onOpenCategory` (inconsistent with every other screen's naming), so the handler was `undefined`. Renamed to `onOpenCategory` in `AllPockets.jsx` to match the naming convention used everywhere else.
+
 ## 2026-08-16 (cont'd 2)
 
 ### Added

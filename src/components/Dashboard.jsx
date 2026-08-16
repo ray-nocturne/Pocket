@@ -5,6 +5,7 @@ import {
   getProfile,
 } from "../lib/queries";
 import "../styles/pocketmaster.css";
+import TabBar from "./TabBar";
 
 const fmt = (n) =>
   "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
@@ -23,6 +24,15 @@ const DEBT_COLORS = [
   "#BF5AF2",
   "#30D158",
   "#FF6B52",
+];
+
+const EXPENSE_CATEGORY_COLORS = [
+  "#FF5C7A",
+  "#22D3EE",
+  "#7F77DD",
+  "#FFB84D",
+  "#34F5A0",
+  "#5B7180",
 ];
 
 const pad = (n) => n.toString().padStart(2, "0");
@@ -306,10 +316,13 @@ function LegendRow({
 
 export default function Dashboard({
   onOpenPocket,
+  onOpenPocketsList,
   onAddTransaction,
   onAddPocket,
   onAddDebt,
   onOpenProfile,
+  onOpenCategory,
+  onOpenBudget,
   onOpenTransaction,
   activeTab = "home",
 }) {
@@ -450,7 +463,7 @@ export default function Dashboard({
     return (
       <div className="pm-app">
         <HeaderGreeting
-          username={profile?.username}
+          username={profile?.full_name || profile?.username}
           now={now}
         />
 
@@ -526,6 +539,9 @@ export default function Dashboard({
         <TabBar
           active={activeTab}
           onHome={() => {}}
+          onPocket={onOpenPocketsList}
+          onCategory={onOpenCategory}
+          onBudget={onOpenBudget}
           onProfile={onOpenProfile}
         />
       </div>
@@ -535,7 +551,7 @@ export default function Dashboard({
   return (
     <div className="pm-app">
       <HeaderGreeting
-        username={profile?.username}
+        username={profile?.full_name || profile?.username}
         now={now}
       />
 
@@ -827,11 +843,22 @@ export default function Dashboard({
                   height: 36,
                   borderRadius: 8,
                   background: "var(--pm-bg)",
-                  border: "1px solid var(--pm-accent)",
+                  border: `1px solid ${
+                    p.type === "bank"
+                      ? "#22D3EE"
+                      : p.type === "emoney"
+                      ? "#7F77DD"
+                      : "#34F5A0"
+                  }`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "var(--pm-accent)",
+                  color:
+                    p.type === "bank"
+                      ? "#22D3EE"
+                      : p.type === "emoney"
+                      ? "#7F77DD"
+                      : "#34F5A0",
                   fontSize: 16,
                   flexShrink: 0,
                 }}
@@ -871,81 +898,103 @@ export default function Dashboard({
               </div>
             </div>
 
-            <p
-              className="pm-num"
-              style={{
-                fontSize: 19,
-                fontWeight: 700,
-                margin: "0 0 12px",
-              }}
-            >
-              {p.balance < 0 ? "-" : ""}
-              {fmt(p.balance)}
-            </p>
-
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "stretch", gap: 10, marginBottom: p.categoryBreakdown?.length > 0 ? 14 : 0 }}>
               <div
                 style={{
                   flex: 1,
                   background: "var(--pm-bg)",
                   border: "1px solid var(--pm-border)",
                   borderRadius: 6,
-                  padding: "6px 8px",
+                  display: "flex",
                 }}
               >
-                <p
-                  style={{
-                    fontSize: 9,
-                    color: "var(--pm-text-secondary)",
-                    margin: "0 0 2px",
-                  }}
-                >
-                  Income
-                </p>
-                <p
-                  className="pm-num"
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 700,
-                    margin: 0,
-                    color: "var(--pm-success)",
-                  }}
-                >
-                  {p.incomeCount}x
-                </p>
+                <div style={{ flex: 1, padding: "8px 10px" }}>
+                  <p style={{ fontSize: 9, color: "var(--pm-text-secondary)", margin: "0 0 2px" }}>
+                    Income
+                  </p>
+                  <p
+                    className="pm-num"
+                    style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "var(--pm-success)" }}
+                  >
+                    {p.incomeCount}x
+                  </p>
+                </div>
+
+                <div style={{ width: 1, background: "var(--pm-border)" }} />
+
+                <div style={{ flex: 1, padding: "8px 10px" }}>
+                  <p style={{ fontSize: 9, color: "var(--pm-text-secondary)", margin: "0 0 2px" }}>
+                    Expense
+                  </p>
+                  <p
+                    className="pm-num"
+                    style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "var(--pm-danger)" }}
+                  >
+                    {p.expenseCount}x
+                  </p>
+                </div>
               </div>
 
-              <div
-                style={{
-                  flex: 1,
-                  background: "var(--pm-bg)",
-                  border: "1px solid var(--pm-border)",
-                  borderRadius: 6,
-                  padding: "6px 8px",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: 9,
-                    color: "var(--pm-text-secondary)",
-                    margin: "0 0 2px",
-                  }}
-                >
-                  Expense
-                </p>
+              <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "right" }}>
+                <p style={{ fontSize: 9, color: "var(--pm-text-secondary)", margin: "0 0 2px" }}>Balance</p>
                 <p
                   className="pm-num"
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 700,
-                    margin: 0,
-                    color: "var(--pm-danger)",
-                  }}
+                  style={{ fontSize: 16, fontWeight: 700, margin: 0, whiteSpace: "nowrap" }}
                 >
-                  {p.expenseCount}x
+                  {p.balance < 0 ? "-" : ""}
+                  {fmt(p.balance)}
                 </p>
               </div>
             </div>
+
+            {p.categoryBreakdown?.length > 0 && (
+              <div style={{ borderTop: "1px solid var(--pm-border)", paddingTop: 12 }}>
+                <p
+                  style={{
+                    fontSize: 10,
+                    color: "var(--pm-text-secondary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    margin: "0 0 8px",
+                  }}
+                >
+                  Expense by category
+                </p>
+
+                <div style={{ height: 8, borderRadius: 4, overflow: "hidden", display: "flex", marginBottom: 10 }}>
+                  {p.categoryBreakdown.map((c, i) => (
+                    <div
+                      key={c.name}
+                      style={{
+                        width: `${c.pct}%`,
+                        background: EXPENSE_CATEGORY_COLORS[i % EXPENSE_CATEGORY_COLORS.length],
+                      }}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
+                  {p.categoryBreakdown.slice(0, 4).map((c, i) => (
+                    <span
+                      key={c.name}
+                      className="pm-num"
+                      style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "var(--pm-text-primary)" }}
+                    >
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: EXPENSE_CATEGORY_COLORS[i % EXPENSE_CATEGORY_COLORS.length],
+                          flexShrink: 0,
+                        }}
+                      />
+                      {c.name} {c.pct.toFixed(0)}%
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </button>
         ))}
       </div>
@@ -1440,52 +1489,11 @@ export default function Dashboard({
       <TabBar
         active={activeTab}
         onHome={() => {}}
+        onPocket={onOpenPocketsList}
+        onCategory={onOpenCategory}
+        onBudget={onOpenBudget}
         onProfile={onOpenProfile}
       />
-    </div>
-  );
-}
-
-function TabBar({
-  active,
-  onHome,
-  onProfile,
-}) {
-  return (
-    <div className="pm-tabbar">
-      <button
-        className={
-          active === "home"
-            ? "active"
-            : ""
-        }
-        onClick={onHome}
-      >
-        <i
-          className="ti ti-home"
-          style={{
-            fontSize: 20,
-          }}
-        />
-        Beranda
-      </button>
-
-      <button
-        className={
-          active === "profile"
-            ? "active"
-            : ""
-        }
-        onClick={onProfile}
-      >
-        <i
-          className="ti ti-user"
-          style={{
-            fontSize: 20,
-          }}
-        />
-        Profil
-      </button>
     </div>
   );
 }

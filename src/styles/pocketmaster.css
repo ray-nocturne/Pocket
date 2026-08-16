@@ -43,8 +43,8 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .pm-row:last-child { border-bottom: none; }
 
 .pm-btn-primary {
-  background: var(--pm-accent); color: #fff; text-align: center; padding: 15px;
-  border-radius: var(--pm-radius-sm); font-size: 15px; font-weight: 600; border: none;
+  background: rgba(34, 211, 238, 0.3); color: var(--pm-accent); text-align: center; padding: 15px;
+  border-radius: var(--pm-radius-sm); font-size: 15px; font-weight: 600; border: 1px solid var(--pm-accent);
   width: 100%; cursor: pointer; font-family: var(--pm-font);
 }
 .pm-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }

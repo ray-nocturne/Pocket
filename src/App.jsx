@@ -8,6 +8,9 @@ import TransactionForm from "./components/TransactionForm";
 import AddDebtForm from "./components/AddDebtForm";
 import Profile from "./components/Profile";
 import TransactionDetail from "./components/TransactionDetail";
+import PocketDetail from "./components/PocketDetail";
+import AllPockets from "./components/AllPockets";
+import AccountSettings from "./components/AccountSettings";
 
 export default function App() {
   const [session, setSession] = useState(undefined);
@@ -18,6 +21,20 @@ export default function App() {
 
   const [selectedTransaction, setSelectedTransaction] =
     useState(null);
+
+  const [selectedPocketId, setSelectedPocketId] =
+    useState(null);
+
+  const [pocketOrigin, setPocketOrigin] =
+    useState("dashboard");
+
+  const goBackFromPocket = () => {
+    if (pocketOrigin === "all-pockets") {
+      setScreen({ name: "all-pockets" });
+    } else {
+      goDashboard();
+    }
+  };
 
   const goDashboard = () => {
     setSelectedTransaction(null);
@@ -123,6 +140,18 @@ export default function App() {
     return (
       <Profile
         onHome={goDashboard}
+        onOpenPocketsList={() =>
+          setScreen({
+            name: "all-pockets",
+          })
+        }
+        onOpenCategory={() => {}}
+        onOpenBudget={() => {}}
+        onOpenAccountSettings={() =>
+          setScreen({
+            name: "account-settings",
+          })
+        }
       />
     );
   }
@@ -148,6 +177,78 @@ export default function App() {
 
         onDeleted={() => {
           goDashboard();
+        }}
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* ACCOUNT SETTINGS */
+  /* ================================================================ */
+
+  if (screen.name === "account-settings") {
+    return (
+      <AccountSettings
+        onBack={() =>
+          setScreen({
+            name: "profile",
+          })
+        }
+        onAccountDeleted={() => {
+          setScreen({
+            name: "dashboard",
+          });
+        }}
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* ALL POCKETS */
+  /* ================================================================ */
+
+  if (screen.name === "all-pockets") {
+    return (
+      <AllPockets
+        onOpenPocket={(pocketId) => {
+          setSelectedPocketId(pocketId);
+          setPocketOrigin("all-pockets");
+          setScreen({
+            name: "pocket-detail",
+          });
+        }}
+        onAddPocket={() =>
+          setScreen({
+            name: "add-pocket",
+          })
+        }
+        onHome={goDashboard}
+        onOpenCategory={() => {}}
+        onOpenBudget={() => {}}
+        onOpenProfile={() =>
+          setScreen({
+            name: "profile",
+          })
+        }
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* POCKET DETAIL */
+  /* ================================================================ */
+
+  if (screen.name === "pocket-detail") {
+    return (
+      <PocketDetail
+        pocketId={selectedPocketId}
+        onBack={goBackFromPocket}
+        onDeleted={goBackFromPocket}
+        onOpenTransaction={(transaction) => {
+          setSelectedTransaction(transaction);
+          setScreen({
+            name: "transaction-detail",
+          });
         }}
       />
     );
@@ -185,7 +286,23 @@ export default function App() {
         })
       }
 
-      onOpenPocket={() => {}}
+      onOpenPocket={(pocketId) => {
+        setSelectedPocketId(pocketId);
+        setPocketOrigin("dashboard");
+        setScreen({
+          name: "pocket-detail",
+        });
+      }}
+
+      onOpenPocketsList={() =>
+        setScreen({
+          name: "all-pockets",
+        })
+      }
+
+      onOpenCategory={() => {}}
+
+      onOpenBudget={() => {}}
 
       onOpenTransaction={(transaction) => {
         setSelectedTransaction(transaction);

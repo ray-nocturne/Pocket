@@ -56,6 +56,20 @@ export async function getPockets({
   return data;
 }
 
+export async function deletePocket(pocketId) {
+  const userId = await getCurrentUserId();
+
+  const {
+    error,
+  } = await supabase
+    .from("pockets")
+    .delete()
+    .eq("id", pocketId)
+    .eq("owner_id", userId);
+
+  if (error) throw error;
+}
+
 export async function addPocket({
   type,
   providerName,
@@ -222,9 +236,29 @@ export async function signUp(
 }
 
 export async function signIn(
-  email,
+  emailOrUsername,
   password
 ) {
+  let email = emailOrUsername;
+
+  if (!emailOrUsername.includes("@")) {
+    const {
+      data: resolvedEmail,
+      error: lookupError,
+    } = await supabase.rpc(
+      "get_email_by_username",
+      { input_username: emailOrUsername }
+    );
+
+    if (lookupError) throw lookupError;
+
+    if (!resolvedEmail) {
+      throw new Error("Invalid login credentials");
+    }
+
+    email = resolvedEmail;
+  }
+
   const {
     data,
     error,
@@ -237,6 +271,16 @@ export async function signIn(
     );
 
   if (error) throw error;
+
+  const isActive = await checkAccountActive(
+    data.user.id
+  );
+
+  if (!isActive) {
+    throw new Error(
+      "This account has been deactivated."
+    );
+  }
 
   return data;
 }
@@ -296,6 +340,58 @@ export async function updateProfile(
     .eq("id", id);
 
   if (error) throw error;
+}
+
+export async function updateProfileDetails(
+  id,
+  { username, fullName }
+) {
+  const {
+    error,
+  } = await supabase
+    .from("profiles")
+    .update({
+      username,
+      full_name: fullName,
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function checkAccountActive(userId) {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("profiles")
+    .select("deactivated_at")
+    .eq("id", userId)
+    .single();
+
+  if (error) throw error;
+
+  if (data?.deactivated_at) {
+    await supabase.auth.signOut();
+    return false;
+  }
+
+  return true;
+}
+
+export async function deactivateAccount(id) {
+  const {
+    error,
+  } = await supabase
+    .from("profiles")
+    .update({
+      deactivated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+
+  await signOut();
 }
 
 // ---------------------------------------------------------------------------
@@ -710,6 +806,129 @@ export async function getPocketTransactions(
 }
 
 // ---------------------------------------------------------------------------
+// Pocket Detail Aggregates
+// ---------------------------------------------------------------------------
+
+export async function getPocketDetail(
+  pocketId,
+  month = new Date()
+) {
+  const userId = await getCurrentUserId();
+
+  const start = new Date(
+    month.getFullYear(),
+    month.getMonth(),
+    1
+  )
+    .toISOString()
+    .slice(0, 10);
+
+  const end = new Date(
+    month.getFullYear(),
+    month.getMonth() + 1,
+    1
+  )
+    .toISOString()
+    .slice(0, 10);
+
+  const [pockets, monthTx] = await Promise.all([
+    getPockets(),
+    supabase
+      .from("transactions")
+      .select(
+        "type, amount, date, from_pocket_id, to_pocket_id, category:category_id (name)"
+      )
+      .eq("owner_id", userId)
+      .gte("date", start)
+      .lt("date", end)
+      .or(
+        `from_pocket_id.eq.${pocketId},to_pocket_id.eq.${pocketId}`
+      )
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return data;
+      }),
+  ]);
+
+  const pocket = pockets.find(
+    (p) => p.pocket_id === pocketId
+  );
+
+  const incomeTx = monthTx.filter(
+    (tx) =>
+      tx.type === "income" &&
+      tx.to_pocket_id === pocketId
+  );
+
+  const expenseTx = monthTx.filter(
+    (tx) =>
+      tx.type === "expense" &&
+      tx.from_pocket_id === pocketId
+  );
+
+  const income = incomeTx.reduce(
+    (sum, tx) => sum + Number(tx.amount),
+    0
+  );
+
+  const expense = expenseTx.reduce(
+    (sum, tx) => sum + Number(tx.amount),
+    0
+  );
+
+  const incomeCount = incomeTx.length;
+  const expenseCount = expenseTx.length;
+
+  // Expense by category
+  const categoryMap = {};
+
+  for (const tx of expenseTx) {
+    const name = tx.category?.name || "Other";
+    categoryMap[name] =
+      (categoryMap[name] || 0) + Number(tx.amount);
+  }
+
+  const categoryBreakdown = Object.entries(categoryMap)
+    .map(([name, amount]) => ({
+      name,
+      amount,
+      pct: expense > 0 ? (amount / expense) * 100 : 0,
+    }))
+    .sort((a, b) => b.amount - a.amount);
+
+  // Daily cash flow
+  const dailyMap = {};
+
+  for (const tx of incomeTx) {
+    if (!dailyMap[tx.date]) {
+      dailyMap[tx.date] = { date: tx.date, income: 0, expense: 0 };
+    }
+    dailyMap[tx.date].income += Number(tx.amount);
+  }
+
+  for (const tx of expenseTx) {
+    if (!dailyMap[tx.date]) {
+      dailyMap[tx.date] = { date: tx.date, income: 0, expense: 0 };
+    }
+    dailyMap[tx.date].expense += Number(tx.amount);
+  }
+
+  const dailyFlow = Object.values(dailyMap).sort(
+    (a, b) => (a.date < b.date ? -1 : 1)
+  );
+
+  return {
+    pocket,
+    income,
+    expense,
+    incomeCount,
+    expenseCount,
+    categoryBreakdown,
+    dailyFlow,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Dashboard Aggregates
 // ---------------------------------------------------------------------------
 
@@ -749,7 +968,7 @@ export async function getDashboardData(
     supabase
       .from("transactions")
       .select(
-        "type, amount, from_pocket_id, to_pocket_id"
+        "type, amount, from_pocket_id, to_pocket_id, category:category_id (name)"
       )
       .eq(
         "owner_id",
@@ -823,10 +1042,41 @@ export async function getDashboardData(
             tx.from_pocket_id === pocket.pocket_id
         ).length;
 
+      const expenseTxForPocket = monthTx.filter(
+        (tx) =>
+          tx.type === "expense" &&
+          tx.from_pocket_id === pocket.pocket_id
+      );
+
+      const expenseForPocket = expenseTxForPocket.reduce(
+        (sum, tx) => sum + Number(tx.amount),
+        0
+      );
+
+      const categoryMap = {};
+
+      for (const tx of expenseTxForPocket) {
+        const name = tx.category?.name || "Other";
+        categoryMap[name] =
+          (categoryMap[name] || 0) + Number(tx.amount);
+      }
+
+      const categoryBreakdown = Object.entries(categoryMap)
+        .map(([name, amount]) => ({
+          name,
+          amount,
+          pct:
+            expenseForPocket > 0
+              ? (amount / expenseForPocket) * 100
+              : 0,
+        }))
+        .sort((a, b) => b.amount - a.amount);
+
       return {
         ...pocket,
         incomeCount: incomeCountForPocket,
         expenseCount: expenseCountForPocket,
+        categoryBreakdown,
       };
     }
   );

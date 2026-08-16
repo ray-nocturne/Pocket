@@ -25,16 +25,36 @@ function Header({ title, onBack }) {
 
 function ChooseType({ onBack, onSelect }) {
   const options = [
-    { key: "bank", icon: "ti-building-bank", color: "#0A84FF", title: "Bank Account", sub: "Any bank account" },
-    { key: "emoney", icon: "ti-wallet", color: "#7F77DD", title: "E-money", sub: "GoPay, OVO, Dana, ShopeePay" },
-    { key: "cash", icon: "ti-cash", color: "#30D158", title: "Cash / Wallet", sub: "Cash" },
+    { key: "bank", icon: "ti-building-bank", color: "#22D3EE", title: "Bank Account", sub: "Any bank account" },
+    { key: "emoney", icon: "ti-device-mobile", color: "#7F77DD", title: "E-money", sub: "GoPay, OVO, Dana, ShopeePay" },
+    { key: "cash", icon: "ti-cash", color: "#34F5A0", title: "Cash / Wallet", sub: "Cash" },
   ];
   return (
     <div className="pm-app">
       <Header title="Pocket Type" onBack={onBack} />
       {options.map((o) => (
-        <button key={o.key} onClick={() => onSelect(o.key)} className="pm-card" style={{ width: "100%", display: "flex", alignItems: "center", gap: 14, marginBottom: 12, border: "none", cursor: "pointer", boxSizing: "border-box" }}>
-          <span style={{ width: 44, height: 44, borderRadius: 12, background: `${o.color}26`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <button
+          key={o.key}
+          onClick={() => onSelect(o.key)}
+          className="pm-card"
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            marginBottom: 12,
+            border: `1px solid ${o.color}`,
+            cursor: "pointer",
+            boxSizing: "border-box",
+            position: "relative",
+          }}
+        >
+          <span style={{ position: "absolute", top: -1, left: -1, width: 10, height: 10, borderTop: `2px solid ${o.color}`, borderLeft: `2px solid ${o.color}` }} />
+          <span style={{ position: "absolute", top: -1, right: -1, width: 10, height: 10, borderTop: `2px solid ${o.color}`, borderRight: `2px solid ${o.color}` }} />
+          <span style={{ position: "absolute", bottom: -1, left: -1, width: 10, height: 10, borderBottom: `2px solid ${o.color}`, borderLeft: `2px solid ${o.color}` }} />
+          <span style={{ position: "absolute", bottom: -1, right: -1, width: 10, height: 10, borderBottom: `2px solid ${o.color}`, borderRight: `2px solid ${o.color}` }} />
+
+          <span style={{ width: 44, height: 44, borderRadius: 10, background: "var(--pm-bg)", border: `1px solid ${o.color}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <i className={`ti ${o.icon}`} style={{ fontSize: 20, color: o.color }} />
           </span>
           <div style={{ flex: 1, textAlign: "left" }}>
@@ -105,7 +125,7 @@ function ChooseBank({ onBack, onSaved }) {
       <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. BCA Savings" className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
 
       <p className="pm-label">Initial balance</p>
-      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input" style={{ marginBottom: 6, boxSizing: "border-box" }} />
+      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 6, boxSizing: "border-box" }} />
       <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: "0 0 24px" }}>Can be left blank, defaults to 0</p>
 
       <button className="pm-btn-primary" onClick={handleSave} disabled={!canSave || saving}>Save Pocket</button>
@@ -148,7 +168,7 @@ function ChooseEmoney({ onBack, onSaved }) {
         ))}
       </div>
       <p className="pm-label">Initial balance</p>
-      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input" style={{ marginBottom: 24, boxSizing: "border-box" }} />
+      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 24, boxSizing: "border-box" }} />
       <button className="pm-btn-primary" onClick={handleSave} disabled={!selected || saving}>Save Pocket</button>
     </div>
   );
@@ -180,7 +200,7 @@ function CashForm({ onBack, onSaved }) {
       <p className="pm-label">Pocket name</p>
       <input value={name} onChange={(e) => setName(e.target.value)} className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
       <p className="pm-label">Initial balance</p>
-      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input" style={{ marginBottom: 32, boxSizing: "border-box" }} />
+      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 32, boxSizing: "border-box" }} />
       <button className="pm-btn-primary" onClick={handleSave} disabled={saving}>Save Pocket</button>
     </div>
   );

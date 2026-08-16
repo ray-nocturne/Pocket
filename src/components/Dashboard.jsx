@@ -63,11 +63,11 @@ function formatTime(d) {
 function getGreeting(d) {
   const h = d.getHours();
 
-  if (h < 10) return "Selamat Pagi";
-  if (h < 15) return "Selamat Siang";
-  if (h < 18) return "Selamat Sore";
+  if (h < 10) return "Good morning";
+  if (h < 15) return "Good afternoon";
+  if (h < 18) return "Good evening";
 
-  return "Selamat Malam";
+  return "Good night";
 }
 
 function PlusIcon({ size = 16 }) {
@@ -150,18 +150,19 @@ function groupByDate(transactions) {
   const groups = {};
 
   for (const tx of transactions) {
+    const formattedDate = new Date(
+      tx.date
+    ).toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+    });
+
     const label =
       tx.date === today
-        ? "Hari ini"
+        ? `Today, ${formattedDate}`
         : tx.date === yesterday
-        ? "Kemarin"
-        : new Date(tx.date).toLocaleDateString(
-            "id-ID",
-            {
-              day: "numeric",
-              month: "long",
-            }
-          );
+        ? `Yesterday, ${formattedDate}`
+        : formattedDate;
 
     (groups[tx.date] = groups[tx.date] || {
       label,
@@ -346,6 +347,7 @@ export default function Dashboard({
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
+  const [balanceVisible, setBalanceVisible] = useState(true);
 
   const carouselRef = useRef(null);
   const [activeCard, setActiveCard] = useState(0);
@@ -582,108 +584,255 @@ export default function Dashboard({
 
   return (
     <div className="pm-app">
-      <HeaderGreeting
-        username={profile?.full_name || profile?.username}
-        now={now}
-      />
-
       <div
-        className="pm-card pm-card-hud"
         style={{
-          margin: "8px 0 20px",
+          border: "1px solid rgba(34,211,238,0.4)",
+          borderRadius: 16,
+          padding: 18,
+          position: "relative",
+          overflow: "hidden",
+          marginBottom: 20,
         }}
       >
-        <h1
-          className="pm-num"
-          style={{
-            fontSize: 32,
-            fontWeight: 600,
-            margin: 0,
-            letterSpacing: "-0.5px",
-          }}
-        >
-          {fmt(totalBalance)}
-        </h1>
+        <div style={{ position: "absolute", top: -1, left: -1, width: 16, height: 16, borderTop: "1px solid var(--pm-accent)", borderLeft: "1px solid var(--pm-accent)", borderTopLeftRadius: 16, zIndex: 2 }} />
+        <div style={{ position: "absolute", top: -1, right: -1, width: 16, height: 16, borderTop: "1px solid var(--pm-accent)", borderRight: "1px solid var(--pm-accent)", borderTopRightRadius: 16, zIndex: 2 }} />
+        <div style={{ position: "absolute", bottom: -1, left: -1, width: 16, height: 16, borderBottom: "1px solid var(--pm-accent)", borderLeft: "1px solid var(--pm-accent)", borderBottomLeftRadius: 16, zIndex: 2 }} />
+        <div style={{ position: "absolute", bottom: -1, right: -1, width: 16, height: 16, borderBottom: "1px solid var(--pm-accent)", borderRight: "1px solid var(--pm-accent)", borderBottomRightRadius: 16, zIndex: 2 }} />
 
-        <p
-          style={{
-            fontSize: 12,
-            color: "var(--pm-text-secondary)",
-            margin: "4px 0 14px",
-          }}
-        >
-          Total saldo dari{" "}
-          {pockets.length} pocket
-        </p>
+        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 0 }} viewBox="0 0 340 380" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="#22D3EE" strokeWidth="0.6" opacity="0.14">
+            <line x1="20" y1="30" x2="80" y2="10" />
+            <line x1="80" y1="10" x2="150" y2="40" />
+            <line x1="150" y1="40" x2="230" y2="15" />
+            <line x1="230" y1="15" x2="300" y2="35" />
+            <line x1="20" y1="30" x2="60" y2="90" />
+            <line x1="150" y1="40" x2="120" y2="100" />
+            <line x1="230" y1="15" x2="270" y2="90" />
+            <line x1="60" y1="90" x2="120" y2="100" />
+            <line x1="120" y1="100" x2="270" y2="90" />
+            <line x1="300" y1="35" x2="270" y2="90" />
+            <line x1="10" y1="200" x2="60" y2="240" />
+            <line x1="60" y1="240" x2="30" y2="310" />
+            <line x1="60" y1="240" x2="130" y2="270" />
+            <line x1="280" y1="220" x2="320" y2="280" />
+            <line x1="280" y1="220" x2="230" y2="260" />
+            <line x1="320" y1="280" x2="270" y2="340" />
+          </g>
+          <g fill="#22D3EE">
+            <circle cx="20" cy="30" r="1.6" opacity="0.4" />
+            <circle cx="80" cy="10" r="1.6" opacity="0.4" />
+            <circle cx="150" cy="40" r="1.6" opacity="0.4" />
+            <circle cx="230" cy="15" r="1.6" opacity="0.4" />
+            <circle cx="300" cy="35" r="1.6" opacity="0.4" />
+            <circle cx="60" cy="90" r="1.6" opacity="0.4" />
+            <circle cx="120" cy="100" r="1.6" opacity="0.4" />
+            <circle cx="270" cy="90" r="1.6" opacity="0.4" />
+            <circle cx="10" cy="200" r="1.6" opacity="0.35" />
+            <circle cx="60" cy="240" r="1.6" opacity="0.35" />
+            <circle cx="30" cy="310" r="1.6" opacity="0.35" />
+            <circle cx="130" cy="270" r="1.6" opacity="0.35" />
+            <circle cx="280" cy="220" r="1.6" opacity="0.35" />
+            <circle cx="320" cy="280" r="1.6" opacity="0.35" />
+            <circle cx="230" cy="260" r="1.6" opacity="0.35" />
+            <circle cx="270" cy="340" r="1.6" opacity="0.35" />
+          </g>
+        </svg>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              background: "var(--pm-bg)",
-              border: "1px solid var(--pm-border)",
-              borderRadius: 8,
-              padding: "10px 12px",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 10,
-                color: "var(--pm-text-secondary)",
-                margin: "0 0 4px",
-              }}
-            >
-              Income transactions
-            </p>
-            <p
-              className="pm-num"
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                margin: 0,
-                color: "var(--pm-success)",
-              }}
-            >
-              {incomeCount}x
-            </p>
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <p style={{ fontSize: 10, color: "#3a4a52", letterSpacing: "0.15em", margin: 0, fontFamily: "monospace" }}>ACCOUNT OVERVIEW</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--pm-success)" }} />
+              <p style={{ fontSize: 10, color: "var(--pm-success)", letterSpacing: "0.1em", margin: 0, fontFamily: "monospace" }}>LIVE</p>
+            </div>
           </div>
 
+          <div style={{ height: 1, background: "rgba(34,211,238,0.2)", marginBottom: 16 }} />
+
           <div
             style={{
-              flex: 1,
-              background: "var(--pm-bg)",
-              border: "1px solid var(--pm-border)",
-              borderRadius: 8,
-              padding: "10px 12px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 20,
             }}
           >
-            <p
-              style={{
-                fontSize: 10,
-                color: "var(--pm-text-secondary)",
-                margin: "0 0 4px",
-              }}
-            >
-              Expense transactions
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: "50%",
+              background: "#1a2229",
+              border: "1px solid rgba(34,211,238,0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+              flexShrink: 0,
+            }}
+          >
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt="Profile"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <span style={{ fontSize: 14, color: "var(--pm-accent)", fontWeight: 600 }}>
+                {(profile?.full_name || profile?.username || "?")
+                  .charAt(0)
+                  .toUpperCase()}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <p style={{ fontSize: 12, color: "var(--pm-text-secondary)", margin: "0 0 2px" }}>
+              {getGreeting(now)}
             </p>
-            <p
-              className="pm-num"
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                margin: 0,
-                color: "var(--pm-danger)",
-              }}
-            >
-              {expenseCount}x
+            <p style={{ fontSize: 15, color: "var(--pm-text-primary)", margin: 0, fontWeight: 600 }}>
+              {profile?.full_name || profile?.username}
             </p>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => onOpenProfile?.()}
+          aria-label="Settings"
+          style={{ background: "none", border: "none", padding: 6, cursor: "pointer" }}
+        >
+          <i className="ti ti-settings" style={{ fontSize: 20, color: "var(--pm-text-secondary)" }} />
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 6,
+        }}
+      >
+        <p style={{ fontSize: 12, color: "var(--pm-text-secondary)", margin: 0 }}>
+          Total Balance
+        </p>
+        <button
+          type="button"
+          onClick={() => setBalanceVisible((v) => !v)}
+          aria-label="Toggle balance visibility"
+          style={{ background: "none", border: "none", padding: 2, cursor: "pointer" }}
+        >
+          <i
+            className={`ti ${balanceVisible ? "ti-eye" : "ti-eye-off"}`}
+            style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+          />
+        </button>
+      </div>
+
+      <h1
+        className="pm-num"
+        style={{
+          fontSize: 34,
+          fontWeight: 600,
+          margin: "0 0 6px",
+          letterSpacing: "-0.5px",
+          textAlign: "right",
+        }}
+      >
+        {balanceVisible ? fmt(totalBalance) : "Rp••••••••"}
+      </h1>
+
+      {balanceVisible && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 6,
+            marginBottom: 22,
+          }}
+        >
+          <i
+            className={`ti ${income - expense >= 0 ? "ti-trending-up" : "ti-trending-down"}`}
+            style={{
+              fontSize: 14,
+              color: income - expense >= 0 ? "var(--pm-success)" : "var(--pm-danger)",
+            }}
+          />
+          <span
+            style={{
+              fontSize: 12,
+              color: income - expense >= 0 ? "var(--pm-success)" : "var(--pm-danger)",
+            }}
+          >
+            {income - expense >= 0 ? "+" : "-"}
+            {fmt(Math.abs(income - expense))} this month
+          </span>
+        </div>
+      )}
+
+      <div
+        style={{
+          border: "1px solid var(--pm-border)",
+          borderRadius: 12,
+          padding: 16,
+          background: "var(--pm-bg)",
+        }}
+      >
+        <div style={{ display: "flex", gap: 16 }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "rgba(52,245,160,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i className="ti ti-arrow-down" style={{ fontSize: 14, color: "var(--pm-success)" }} />
+            </span>
+            <div>
+              <p style={{ fontSize: 11, color: "var(--pm-text-secondary)", margin: 0 }}>In</p>
+              <p className="pm-num" style={{ fontSize: 14, color: "var(--pm-text-primary)", margin: 0 }}>
+                {fmt(income)}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ width: 1, background: "var(--pm-border)" }} />
+
+          <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: "rgba(255,92,122,0.12)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <i className="ti ti-arrow-up" style={{ fontSize: 14, color: "var(--pm-danger)" }} />
+            </span>
+            <div>
+              <p style={{ fontSize: 11, color: "var(--pm-text-secondary)", margin: 0 }}>Out</p>
+              <p className="pm-num" style={{ fontSize: 14, color: "var(--pm-text-primary)", margin: 0 }}>
+                {fmt(expense)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
       </div>
 
       {/* Pockets */}

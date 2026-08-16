@@ -16,6 +16,13 @@ Each session's work is grouped under its date. Newest entries at the top.
 - Optional "proof of transaction" photo upload on Income/Expense/Transfer forms, with client-side compression (max 1200px, ~80% quality, 5MB upload limit) before storing in a new `transaction-proofs` Supabase Storage bucket.
 - Proof of transaction photo now displays on the transaction detail screen (tap to view full size) when present.
 - Storage RLS policies so users can only upload/delete their own transaction proof files, while the bucket stays publicly readable.
+- Added Category management screen at `src/components/Category.jsx`.
+- Added Expense / Income category switching.
+- Added category grouping by `group_name`.
+- Added transaction count, system category, and locked category indicators.
+- Added loading, empty, and error states for categories.
+- Connected Category screen to the existing Supabase `categories` table.
+- Activated the existing Category footer navigation using the existing `ti-tag` icon.
 
 ### Fixed
 - Signup failing with 500 error: `handle_new_user()` trigger now generates a unique username by appending a numeric suffix on collision (was previously crashing on duplicate `username` derived from email prefix).
@@ -24,6 +31,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ### Changed
 - Login/register email field switches input type between `email` (register) and `text` (login) to properly support username-based login.
+- Category footer icon and footer structure were preserved; no icon redesign was introduced.
+- Category Expense / Income segmented controls were styled according to the existing design system:
+  - Expense uses a 30% red background with full red text.
+  - Income uses a 30% green background with full green text.
+- Existing Pocket Master colors, typography, spacing, and HUD styling were preserved.
 
 ### Removed
 - Duplicate catch-all categories "Meals" and "Transportation" that matched their own group name (0 transactions affected).
@@ -31,5 +43,16 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ### Planned (designed, not yet implemented)
 - Full category taxonomy rehaul (Food/Housing/Transportation/Shopping/Health/Lifestyle/Entertainment/Family/Work & Business/Travel/Financial groups, income restructuring) — taxonomy finalized in chat, migration not yet started.
-- Category management screen (Task B/C).
 - Task D: savings pockets, income pass-through flag, budget screen.
+
+### QA / Verification
+- Expense categories verified.
+- Income categories verified.
+- Category groups verified.
+- Transaction counts verified.
+- Category footer navigation verified.
+- Existing footer icons verified unchanged.
+- Expense / Income active-state styling verified.
+- `npm run build` completed successfully.
+- Category implementation committed and pushed to GitHub.
+- Commit: `b030b9b` — `feat: add category management screen`

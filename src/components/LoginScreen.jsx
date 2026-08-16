@@ -7,15 +7,23 @@ export default function LoginScreen({ onAuthed }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
   const isRegister = mode === "register";
+
+  const hasMinLength = password.length >= 6;
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+  const passwordValid = hasMinLength && hasLetter && hasNumber && hasSpecial;
+
   const canSubmit =
     email.trim() &&
-    password.length >= 6 &&
-    (!isRegister || password === confirmPassword);
+    (isRegister ? passwordValid && password === confirmPassword : password.length > 0);
 
   async function handleSubmit() {
     setError("");
@@ -34,6 +42,15 @@ export default function LoginScreen({ onAuthed }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  function RuleRow({ ok, label }) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: ok ? "var(--pm-success)" : "var(--pm-text-muted, #7d8790)" }}>
+        <i className={ok ? "ti ti-circle-check" : "ti ti-circle"} style={{ fontSize: 13 }} />
+        {label}
+      </div>
+    );
   }
 
   return (
@@ -80,37 +97,82 @@ export default function LoginScreen({ onAuthed }) {
         </button>
       </div>
 
-      <p className="pm-label">EMAIL</p>
+      {!isRegister && (
+        <p style={{ fontSize: 12, color: "var(--pm-text-muted, #7d8790)", margin: "0 0 16px", lineHeight: 1.5 }}>
+          Log in with your email or username.
+        </p>
+      )}
+
+      <p className="pm-label">{isRegister ? "EMAIL" : "EMAIL OR USERNAME"}</p>
       <input
         className="pm-input"
-        type="email"
+        type={isRegister ? "email" : "text"}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="name@email.com"
+        placeholder={isRegister ? "name@email.com" : "name@email.com or username"}
         style={{ marginBottom: 16, boxSizing: "border-box" }}
       />
 
       <p className="pm-label">PASSWORD</p>
-      <input
-        className="pm-input"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="At least 6 characters"
-        style={{ marginBottom: isRegister ? 16 : 8, boxSizing: "border-box" }}
-      />
+      <div style={{ position: "relative", marginBottom: isRegister ? 8 : 8 }}>
+        <input
+          className="pm-input"
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter password"
+          style={{ boxSizing: "border-box", width: "100%", paddingRight: 40 }}
+        />
+        <i
+          className={showPassword ? "ti ti-eye-off" : "ti ti-eye"}
+          onClick={() => setShowPassword((v) => !v)}
+          style={{
+            position: "absolute",
+            right: 12,
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "var(--pm-text-muted, #7d8790)",
+            cursor: "pointer",
+            fontSize: 17,
+          }}
+        />
+      </div>
+
+      {isRegister && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, margin: "8px 0 16px", padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 6 }}>
+          <RuleRow ok={hasMinLength} label="At least 6 characters" />
+          <RuleRow ok={hasLetter} label="Contains a letter" />
+          <RuleRow ok={hasNumber} label="Contains a number" />
+          <RuleRow ok={hasSpecial} label="Contains a special character" />
+        </div>
+      )}
 
       {isRegister && (
         <>
           <p className="pm-label">CONFIRM PASSWORD</p>
-          <input
-            className="pm-input"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Repeat password"
-            style={{ marginBottom: 8, boxSizing: "border-box" }}
-          />
+          <div style={{ position: "relative", marginBottom: 8 }}>
+            <input
+              className="pm-input"
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repeat password"
+              style={{ boxSizing: "border-box", width: "100%", paddingRight: 40 }}
+            />
+            <i
+              className={showConfirmPassword ? "ti ti-eye-off" : "ti ti-eye"}
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              style={{
+                position: "absolute",
+                right: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--pm-text-muted, #7d8790)",
+                cursor: "pointer",
+                fontSize: 17,
+              }}
+            />
+          </div>
         </>
       )}
 

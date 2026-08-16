@@ -54,6 +54,7 @@ export default function App() {
       supabase.auth.onAuthStateChange(
         (_event, newSession) => {
           setSession(newSession);
+          setScreen({ name: "dashboard" });
         }
       );
 

@@ -116,8 +116,6 @@ export default function TransactionDetail({
           marginBottom: 28,
         }}
       >
-        {/* Back */}
-
         <button
           type="button"
           onClick={onBack}
@@ -141,8 +139,6 @@ export default function TransactionDetail({
           />
         </button>
 
-        {/* Title */}
-
         <p
           style={{
             fontSize: 15,
@@ -152,8 +148,6 @@ export default function TransactionDetail({
         >
           Transaction
         </p>
-
-        {/* Edit */}
 
         <button
           type="button"
@@ -275,8 +269,6 @@ export default function TransactionDetail({
           )}
         />
 
-        {/* Income */}
-
         {isIncome && (
           <>
             <DetailRow
@@ -297,8 +289,6 @@ export default function TransactionDetail({
             )}
           </>
         )}
-
-        {/* Expense */}
 
         {isExpense && (
           <>
@@ -322,8 +312,6 @@ export default function TransactionDetail({
           </>
         )}
 
-        {/* Transfer */}
-
         {isTransfer && (
           <>
             <DetailRow
@@ -346,8 +334,6 @@ export default function TransactionDetail({
           </>
         )}
 
-        {/* Category */}
-
         {transaction.category?.name && (
           <DetailRow
             label="Category"
@@ -357,8 +343,6 @@ export default function TransactionDetail({
           />
         )}
 
-        {/* Payment method */}
-
         {transaction.payment_method && (
           <DetailRow
             label="Payment method"
@@ -367,8 +351,6 @@ export default function TransactionDetail({
             )}
           />
         )}
-
-        {/* Fee */}
 
         {transaction.fee_amount &&
           Number(
@@ -382,6 +364,51 @@ export default function TransactionDetail({
             />
           )}
       </div>
+
+      {/* ================================================================ */}
+      {/* Proof of transaction */}
+      {/* ================================================================ */}
+
+      {transaction.proof_url && (
+        <a
+        
+          href={transaction.proof_url}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: "block",
+            marginTop: 16,
+            borderRadius: 14,
+            overflow: "hidden",
+            border: "1px solid rgba(34,211,238,0.25)",
+          }}
+        >
+          <img
+            src={transaction.proof_url}
+            alt="Proof of transaction"
+            style={{
+              width: "100%",
+              maxHeight: 260,
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+
+          <div
+            style={{
+              padding: "8px 12px",
+              fontSize: 12,
+              color: "var(--pm-accent)",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <i className="ti ti-photo" style={{ fontSize: 14 }} />
+            View full size
+          </div>
+        </a>
+      )}
 
       {/* ================================================================ */}
       {/* Delete */}

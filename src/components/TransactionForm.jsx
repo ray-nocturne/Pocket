@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import imageCompression from "browser-image-compression";
 import {
   getPockets,
   getCategories,
@@ -16,6 +17,8 @@ const PAYMENT_METHODS = [
   { value: "qris", label: "QRIS" },
   { value: "cash", label: "Cash" },
 ];
+
+const MAX_PROOF_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 const formatRp = (value) =>
   "Rp" + Number(value || 0).toLocaleString("id-ID");
@@ -44,11 +47,6 @@ export default function TransactionForm({
 
   // -------------------------------------------------------------------------
   // Full original transaction
-  //
-  // Important:
-  // Dashboard only sends a summarized transaction object.
-  // When editing, we fetch the complete DB row and keep it here so that
-  // balance validation can correctly "give back" the old transaction.
   // -------------------------------------------------------------------------
   const [originalTransaction, setOriginalTransaction] =
     useState(null);
@@ -66,6 +64,16 @@ export default function TransactionForm({
   );
   const [paymentMethod, setPaymentMethod] =
     useState("bank_transfer");
+
+  // -------------------------------------------------------------------------
+  // Proof of transaction
+  // -------------------------------------------------------------------------
+  const [proofUrl, setProofUrl] = useState("");
+  const [proofPreview, setProofPreview] = useState("");
+  const [proofFileName, setProofFileName] = useState("");
+  const [proofFileSize, setProofFileSize] = useState(0);
+  const [uploadingProof, setUploadingProof] = useState(false);
+  const [proofError, setProofError] = useState("");
 
   // -------------------------------------------------------------------------
   // Income
@@ -171,12 +179,8 @@ export default function TransactionForm({
 
         if (!mounted) return;
 
-        // Keep the complete original row.
         setOriginalTransaction(data);
 
-        // -------------------------------------------------------------------
-        // Common
-        // -------------------------------------------------------------------
         setType(data.type || "expense");
 
         setAmount(
@@ -204,9 +208,9 @@ export default function TransactionForm({
             "bank_transfer"
         );
 
-        // -------------------------------------------------------------------
-        // Income
-        // -------------------------------------------------------------------
+        setProofUrl(data.proof_url || "");
+        setProofPreview(data.proof_url || "");
+
         setToPocketId(
           data.to_pocket_id || ""
         );
@@ -219,9 +223,6 @@ export default function TransactionForm({
           data.category_id || ""
         );
 
-        // -------------------------------------------------------------------
-        // Expense
-        // -------------------------------------------------------------------
         setFromPocketId(
           data.from_pocket_id || ""
         );
@@ -238,9 +239,6 @@ export default function TransactionForm({
           data.debt_id || ""
         );
 
-        // -------------------------------------------------------------------
-        // Transfer
-        // -------------------------------------------------------------------
         setTransferFrom(
           data.from_pocket_id || ""
         );
@@ -249,9 +247,6 @@ export default function TransactionForm({
           data.to_pocket_id || ""
         );
 
-        // -------------------------------------------------------------------
-        // Fee
-        // -------------------------------------------------------------------
         if (
           data.fee_amount !== null &&
           data.fee_amount !== undefined &&
@@ -294,6 +289,77 @@ export default function TransactionForm({
       mounted = false;
     };
   }, [isEdit, transaction?.id]);
+
+  // -------------------------------------------------------------------------
+  // Proof of transaction handlers
+  // -------------------------------------------------------------------------
+  async function handleProofSelect(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setProofError("");
+
+    if (file.size > MAX_PROOF_SIZE_BYTES) {
+      setProofError("File is too large. Maximum size is 5MB.");
+      return;
+    }
+
+    setUploadingProof(true);
+
+    try {
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 1200,
+        initialQuality: 0.8,
+        useWebWorker: true,
+      });
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const ext = compressed.name?.split(".").pop() || "jpg";
+      const path = `${user.id}/${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 8)}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("transaction-proofs")
+        .upload(path, compressed, {
+          contentType: compressed.type || file.type,
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage
+        .from("transaction-proofs")
+        .getPublicUrl(path);
+
+      setProofUrl(publicUrl);
+      setProofPreview(publicUrl);
+      setProofFileName(file.name);
+      setProofFileSize(compressed.size);
+    } catch (error) {
+      console.error("Failed uploading proof:", error);
+      setProofError(
+        error?.message || "Failed to upload photo."
+      );
+    } finally {
+      setUploadingProof(false);
+    }
+  }
+
+  function handleRemoveProof() {
+    setProofUrl("");
+    setProofPreview("");
+    setProofFileName("");
+    setProofFileSize(0);
+    setProofError("");
+  }
 
   // -------------------------------------------------------------------------
   // Selected pockets
@@ -397,9 +463,6 @@ export default function TransactionForm({
 
   // -------------------------------------------------------------------------
   // Debt validation
-  //
-  // Existing debt payment must be added back to the remaining balance
-  // because the DB balance already reflects the old transaction.
   // -------------------------------------------------------------------------
   const effectiveDebtRemaining =
     selectedDebt &&
@@ -420,19 +483,6 @@ export default function TransactionForm({
 
   // -------------------------------------------------------------------------
   // Balance validation
-  //
-  // For edit mode:
-  //
-  // Current balance already contains the effect of the old transaction.
-  //
-  // So if we're editing the same source pocket:
-  //
-  // editable balance =
-  // current balance
-  // + old transaction amount
-  // + old fee
-  //
-  // Then compare the new transaction against that amount.
   // -------------------------------------------------------------------------
   const requiresSourcePocket =
     type === "expense" ||
@@ -522,6 +572,7 @@ export default function TransactionForm({
   const isValid =
     numericAmount > 0 &&
     !saving &&
+    !uploadingProof &&
     !sourcePocketMissing &&
     !insufficientBalance &&
     !debtExceeded &&
@@ -627,6 +678,7 @@ export default function TransactionForm({
         date,
         transactionTime,
         paymentMethod,
+        proofUrl: proofUrl || null,
         feeAmount:
           feeEnabled
             ? feeAmount
@@ -639,9 +691,6 @@ export default function TransactionForm({
 
       let savedTransaction;
 
-      // ---------------------------------------------------------------------
-      // Income
-      // ---------------------------------------------------------------------
       if (type === "income") {
         const payload = {
           ...base,
@@ -668,9 +717,6 @@ export default function TransactionForm({
         }
       }
 
-      // ---------------------------------------------------------------------
-      // Expense
-      // ---------------------------------------------------------------------
       else if (type === "expense") {
         const payload = {
           ...base,
@@ -700,9 +746,6 @@ export default function TransactionForm({
         }
       }
 
-      // ---------------------------------------------------------------------
-      // Transfer
-      // ---------------------------------------------------------------------
       else {
         const payload = {
           ...base,
@@ -946,7 +989,7 @@ export default function TransactionForm({
         </button>
       </div>
 
-      {/* Pocket (moved before amount so available balance is known first) */}
+      {/* Pocket */}
       {type === "income" && (
         <Field label="To pocket">
           <select
@@ -1510,6 +1553,124 @@ export default function TransactionForm({
             </select>
           </Field>
         </>
+      )}
+
+      {/* ================================================================== */}
+      {/* PROOF OF TRANSACTION */}
+      {/* ================================================================== */}
+      <p className="pm-label">Proof of transaction (optional)</p>
+
+      {!proofPreview && (
+        <label
+          className="pm-card"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+            marginBottom: 16,
+            border: "1px dashed rgba(34,211,238,0.35)",
+            cursor: uploadingProof ? "default" : "pointer",
+            textAlign: "center",
+          }}
+        >
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleProofSelect}
+            disabled={uploadingProof}
+            style={{ display: "none" }}
+          />
+          <i
+            className="ti ti-camera-plus"
+            style={{ fontSize: 22, color: "var(--pm-accent)" }}
+          />
+          <p style={{ fontSize: 13, color: "var(--pm-accent)", margin: "8px 0 0" }}>
+            {uploadingProof ? "Uploading..." : "Add photo"}
+          </p>
+          <p style={{ fontSize: 11, color: "var(--pm-text-muted)", margin: "4px 0 0" }}>
+            Receipt, screenshot, or proof · max 5MB
+          </p>
+        </label>
+      )}
+
+      {proofPreview && (
+        <div
+          style={{
+            position: "relative",
+            borderRadius: 12,
+            overflow: "hidden",
+            border: "1px solid rgba(34,211,238,0.25)",
+            marginBottom: 16,
+          }}
+        >
+          <img
+            src={proofPreview}
+            alt="Proof of transaction"
+            style={{
+              width: "100%",
+              height: 160,
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={handleRemoveProof}
+            aria-label="Remove photo"
+            style={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: "rgba(11,17,22,0.85)",
+              border: "1px solid rgba(255,92,122,0.35)",
+              color: "var(--pm-danger)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <i className="ti ti-trash" style={{ fontSize: 14 }} />
+          </button>
+
+          {proofFileName && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: "6px 10px",
+                background: "rgba(11,17,22,0.85)",
+                fontSize: 11,
+                color: "var(--pm-text-muted)",
+              }}
+            >
+              {proofFileName}
+              {proofFileSize
+                ? ` · ${Math.round(proofFileSize / 1024)} KB`
+                : ""}
+            </div>
+          )}
+        </div>
+      )}
+
+      {proofError && (
+        <p
+          style={{
+            fontSize: 12,
+            color: "var(--pm-danger)",
+            margin: "-8px 0 16px",
+          }}
+        >
+          {proofError}
+        </p>
       )}
 
       {/* ================================================================== */}

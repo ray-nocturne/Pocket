@@ -18,23 +18,10 @@ export default function TabBar({
         <i className="ti ti-wallet" style={{ fontSize: 20 }} />
         Pocket
       </button>
-      <button disabled style={{ opacity: 0.35, cursor: "not-allowed", position: "relative" }}>
-        <span
-          style={{
-            position: "absolute",
-            top: -2,
-            right: "18%",
-            fontSize: 7,
-            fontWeight: 700,
-            letterSpacing: "0.3px",
-            color: "var(--pm-accent)",
-            background: "var(--pm-accent-bg)",
-            padding: "1px 4px",
-            borderRadius: 6,
-          }}
-        >
-          SOON
-        </span>
+      <button
+        className={active === "category" ? "active" : ""}
+        onClick={onCategory}
+      >
         <i className="ti ti-tag" style={{ fontSize: 20 }} />
         Category
       </button>

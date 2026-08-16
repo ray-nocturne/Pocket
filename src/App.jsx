@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
+import Category from "./components/Category";
 
 import LoginScreen from "./components/LoginScreen";
 import Dashboard from "./components/Dashboard";
@@ -134,6 +135,30 @@ export default function App() {
   }
 
   /* ================================================================ */
+  /* CATEGORY */
+  /* ================================================================ */
+
+  if (screen.name === "category") {
+    return (
+      <Category
+        onHome={goDashboard}
+        onPocket={() =>
+          setScreen({
+            name: "all-pockets",
+          })
+        }
+        onBudget={() => {}}
+        onProfile={() =>
+          setScreen({
+            name: "profile",
+          })
+        }
+        onBack={goDashboard}
+      />
+    );
+  }
+
+  /* ================================================================ */
   /* PROFILE */
   /* ================================================================ */
 
@@ -146,7 +171,11 @@ export default function App() {
             name: "all-pockets",
           })
         }
-        onOpenCategory={() => {}}
+        onOpenCategory={() =>
+          setScreen({
+            name: "category",
+          })
+        }
         onOpenBudget={() => {}}
         onOpenAccountSettings={() =>
           setScreen({
@@ -224,7 +253,11 @@ export default function App() {
           })
         }
         onHome={goDashboard}
-        onOpenCategory={() => {}}
+        onOpenCategory={() =>
+          setScreen({
+            name: "category",
+          })
+        }
         onOpenBudget={() => {}}
         onOpenProfile={() =>
           setScreen({
@@ -301,7 +334,11 @@ export default function App() {
         })
       }
 
-      onOpenCategory={() => {}}
+      onOpenCategory={() =>
+        setScreen({
+          name: "category",
+        })
+      }
 
       onOpenBudget={() => {}}
 

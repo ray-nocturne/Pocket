@@ -291,7 +291,7 @@ export default function DebtDetail({
               "0.5px",
           }}
         >
-          Sisa hutang
+          Remaining debt
         </p>
 
         <p
@@ -381,7 +381,7 @@ export default function DebtDetail({
               margin: "0 0 4px",
             }}
           >
-            Cicilan
+            Installment
           </p>
 
           <p
@@ -395,7 +395,7 @@ export default function DebtDetail({
             {debt.monthly_installment
               ? `${fmt(
                   debt.monthly_installment
-                )}/bln`
+                )}/mo`
               : "-"}
           </p>
         </div>
@@ -493,7 +493,7 @@ export default function DebtDetail({
               fontWeight: 600,
             }}
           >
-            Belum ada pembayaran
+            No payments yet
           </p>
 
           <p

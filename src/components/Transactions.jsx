@@ -274,7 +274,7 @@ export default function Transactions({
                 fontWeight: 600,
               }}
             >
-              Belum ada transaksi
+              No transactions yet
             </p>
 
             <p

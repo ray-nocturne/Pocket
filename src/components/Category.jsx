@@ -125,7 +125,7 @@ export default function Category({
               margin: "3px 0 0",
             }}
           >
-            Kelola kategori transaksi
+            Manage your transaction categories
           </p>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function Category({
               fontWeight: 600,
             }}
           >
-            Belum ada kategori
+            No categories yet
           </p>
 
           <p

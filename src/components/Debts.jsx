@@ -310,7 +310,7 @@ export default function Debts({
               fontWeight: 600,
             }}
           >
-            Belum ada hutang
+            No debts yet
           </p>
 
           <p
@@ -450,11 +450,11 @@ export default function Debts({
                             margin: "2px 0 0",
                           }}
                         >
-                          Cicilan{" "}
+                          Installment{" "}
                           {fmt(
                             debt.monthly_installment
                           )}
-                          /bln
+                          /mo
                         </p>
                       )}
                     </div>
@@ -490,7 +490,7 @@ export default function Debts({
                       margin: "0 0 10px",
                     }}
                   >
-                    sisa hutang
+                    remaining debt
                   </p>
 
                   <div

@@ -547,7 +547,7 @@ export default function Dashboard({
               margin: "0 0 6px",
             }}
           >
-            Belum ada pocket
+            No pockets yet
           </p>
 
           <p
@@ -1409,7 +1409,7 @@ export default function Dashboard({
                         margin: 0,
                       }}
                     >
-                      Cicilan {fmt(d.monthly_installment)}/bln
+                      Installment {fmt(d.monthly_installment)}/mo
                     </p>
                   )}
                 </div>
@@ -1434,7 +1434,7 @@ export default function Dashboard({
                   margin: 0,
                 }}
               >
-                sisa hutang
+                remaining debt
               </p>
             </div>
           ))}
@@ -1451,7 +1451,7 @@ export default function Dashboard({
               margin: "0 0 10px",
             }}
           >
-            Belum ada hutang tercatat
+            No debts recorded yet
           </p>
 
           <button
@@ -1527,7 +1527,7 @@ export default function Dashboard({
             padding: "20px 0",
           }}
         >
-          Belum ada transaksi
+          No transactions yet
         </p>
       )}
 
@@ -1628,30 +1628,40 @@ export default function Dashboard({
                     style={{
                       fontSize: 14,
                       margin: 0,
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {tx.category?.name ||
                       (tx.type === "transfer"
                         ? "Transfer"
-                        : "Lainnya")}
-                    {tx.description
-                      ? ` · ${tx.description}`
-                      : ""}
+                        : "Other")}
                   </p>
 
                   <p
                     style={{
                       fontSize: 12,
-                      color:
-                        "var(--pm-text-secondary)",
+                      color: "var(--pm-text-secondary)",
+                      margin: "2px 0 0",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {tx.description
+                      ? `${tx.description}${pocketName ? ` · ${pocketName}` : ""}`
+                      : pocketName || "\u00a0"}
+                  </p>
+
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: "var(--pm-text-muted, #5B6472)",
                       margin: "2px 0 0",
                     }}
                   >
-                    {pocketName
-                      ? `${pocketName} · `
-                      : ""}
-                    {formatDate(new Date(tx.date))}
-                    {" · "}
                     {tx.transaction_time
                       ? tx.transaction_time.slice(0, 5)
                       : formatTime(new Date(tx.created_at))}

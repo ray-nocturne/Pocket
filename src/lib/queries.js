@@ -558,6 +558,10 @@ export async function addTransaction(
       payload.debtId ??
       null,
 
+    debt_action:
+      payload.debtAction ??
+      null,
+
     proof_url:
       payload.proofUrl ??
       null,
@@ -606,6 +610,7 @@ const TRANSACTION_SELECT = `
   payee,
   category_id,
   debt_id,
+  debt_action,
   proof_url,
 
   from_pocket:from_pocket_id (
@@ -812,6 +817,10 @@ export async function updateTransaction(
 
     debt_id:
       payload.debtId ??
+      null,
+
+    debt_action:
+      payload.debtAction ??
       null,
 
     proof_url:

@@ -10,81 +10,35 @@ Each session's work is grouped under its date. Newest entries at the top.
 ## 2026-08-16
 
 ### Added
+- Category management screen: displays expense and income categories grouped, with transaction counts per category. Activated the "Category" footer tab.
+- Debt system expanded to support two debt types: `fixed` (payment only) and `revolving` (borrow + payment, with a credit limit and available credit). Added `debts.debt_type` and `transactions.debt_action` ('borrow' | 'payment') columns, and updated the `debt_balances` view to compute borrowed/paid/remaining/available_credit per debt type.
+- Debt Detail screen: summary, principal, remaining, paid, progress, installment, due date, payment history, with navigation to Transaction Detail.
+- Borrow/Payment selector in TransactionForm for revolving debts (fixed debts are payment-only and hide the selector). Shows available credit or remaining balance depending on the selected action.
 - Show/hide password toggle (eye icon) on login and register forms.
 - Live password rule checklist on register: minimum 6 characters, must contain a letter, a number, and a special character.
 - Helper text on login form clarifying it accepts email or username.
 - Optional "proof of transaction" photo upload on Income/Expense/Transfer forms, with client-side compression (max 1200px, ~80% quality, 5MB upload limit) before storing in a new `transaction-proofs` Supabase Storage bucket.
 - Proof of transaction photo now displays on the transaction detail screen (tap to view full size) when present.
 - Storage RLS policies so users can only upload/delete their own transaction proof files, while the bucket stays publicly readable.
-- Added Category management screen at `src/components/Category.jsx`.
-- Added Expense / Income category switching.
-- Added category grouping by `group_name`.
-- Added transaction count, system category, and locked category indicators.
-- Added loading, empty, and error states for categories.
-- Connected Category screen to the existing Supabase `categories` table.
-- Activated the existing Category footer navigation using the existing `ti-tag` icon.
-- Added Debt Detail screen at `src/components/DebtDetail.jsx`.
-- Added debt detail data loading through `getDebtDetail(debtId)`.
-- Added debt summary showing total principal, remaining balance, paid amount, and payment progress.
-- Added monthly installment and due date information.
-- Added debt payment history section with date grouping.
-- Added empty payment history state for newly created debts.
-- Added navigation from Debt list to Debt Detail.
-- Added navigation from Debt Detail payment history to the existing Transaction Detail screen.
-- Added Transaction History screen at `src/components/Transactions.jsx`.
-- Added paginated transaction history loading with 30 transactions per page.
-- Added date-grouped transaction history.
-- Added transaction navigation from Dashboard via `Lihat Semua`.
-- Reused the existing Transaction Detail screen from Transaction History.
 
 ### Fixed
+- Debt payments/borrows were completely broken: `validate_transaction_balance()` trigger required `debt_action` on any transaction linked to a debt, but `queries.js` (addTransaction/updateTransaction/TRANSACTION_SELECT) and `TransactionForm.jsx` never sent it — every debt-category transaction was rejected. Added `debt_action` end-to-end (data layer + form UI + payload), verified working for fixed-debt payment.
 - Signup failing with 500 error: `handle_new_user()` trigger now generates a unique username by appending a numeric suffix on collision (was previously crashing on duplicate `username` derived from email prefix).
 - Signup failing with "Error sending confirmation email": switched Supabase Auth from custom Resend SMTP (blocked by testing-domain restriction) back to Supabase's built-in email service for development.
 - App redirecting to the last-viewed screen (e.g. Profile) instead of Home/Dashboard after login: `screen` state now resets to dashboard on every auth state change (login and logout).
+- Initial Debt Detail dark/blank screen bug caused by React Hook ordering — fixed.
 
 ### Changed
 - Login/register email field switches input type between `email` (register) and `text` (login) to properly support username-based login.
-- Category footer icon and footer structure were preserved; no icon redesign was introduced.
-- Category Expense / Income segmented controls were styled according to the existing design system:
-  - Expense uses a 30% red background with full red text.
-  - Income uses a 30% green background with full green text.
-- Existing Pocket Master colors, typography, spacing, and HUD styling were preserved.
-- Dashboard continues to show the 15 most recent transactions.
-- Dashboard transaction history now includes a `Lihat Semua` action for opening the full Transaction History screen.
-- Removed the obsolete `Punya pocket lain? + Tambah Pocket` section from Dashboard because Pocket management is now available through the Pocket screen.
-- Pocket breakdown colors now use deterministic unique assignment based on `pocket_id` ordering.
-- Expanded the Pocket color palette to support more unique pocket colors without changing the existing dashboard visual language.
-- Transaction History remains a secondary screen and is intentionally not added to the primary TabBar.
-- Debt Detail reuses the existing transaction model and `transactions.debt_id` relationship.
-- No new database schema changes were required for Debt Detail.
-- Debt payment linkage UI is intentionally deferred to the next debt implementation step.
 
 ### Removed
 - Duplicate catch-all categories "Meals" and "Transportation" that matched their own group name (0 transactions affected).
 - "Food" category, merged into the Meals group; its 2 existing transactions manually reassigned (Breakfast, Snack).
 
+### Known limitations
+- Revolving debt borrow/payment flow implemented but not yet end-to-end tested in production (no revolving debt exists in the account yet). Fixed-debt payment confirmed working.
+- No visual indicator yet in transaction list views (Dashboard/PocketDetail) showing which transactions have a proof photo attached.
+
 ### Planned (designed, not yet implemented)
 - Full category taxonomy rehaul (Food/Housing/Transportation/Shopping/Health/Lifestyle/Entertainment/Family/Work & Business/Travel/Financial groups, income restructuring) — taxonomy finalized in chat, migration not yet started.
 - Task D: savings pockets, income pass-through flag, budget screen.
-- Debt payment flow: allow an expense transaction to be explicitly linked to a debt via `debt_id`, so payments automatically appear in Debt Detail and reduce the remaining balance.
-
-### QA / Verification
-- Expense categories verified.
-- Income categories verified.
-- Category groups verified.
-- Transaction counts verified.
-- Category footer navigation verified.
-- Existing footer icons verified unchanged.
-- Expense / Income active-state styling verified.
-- `npm run build` completed successfully.
-- Category implementation committed and pushed to GitHub.
-- Commit: `b030b9b` — `feat: add category management screen`
-- Debt Detail screen verified with a newly created debt.
-- Debt total principal and remaining balance displayed correctly.
-- Initial payment progress verified at 0%.
-- Monthly installment and due date display verified.
-- Empty payment history state verified.
-- Debt list → Debt Detail navigation verified.
-- Debt Detail → Transaction Detail navigation implemented but not end-to-end tested because the newly created debt has no linked payment transactions yet.
-- React Hook ordering issue in Debt Detail fixed.
-- `npm run build` completed successfully.

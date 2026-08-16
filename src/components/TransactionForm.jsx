@@ -89,6 +89,7 @@ export default function TransactionForm({
   const [payee, setPayee] = useState("");
   const [expenseCategoryId, setExpenseCategoryId] = useState("");
   const [debtId, setDebtId] = useState("");
+  const [debtAction, setDebtAction] = useState("payment");
 
   // -------------------------------------------------------------------------
   // Transfer
@@ -237,6 +238,10 @@ export default function TransactionForm({
 
         setDebtId(
           data.debt_id || ""
+        );
+
+        setDebtAction(
+          data.debt_action || "payment"
         );
 
         setTransferFrom(
@@ -420,6 +425,12 @@ export default function TransactionForm({
       d.debt_id === debtId
   );
 
+  const isRevolvingDebt =
+    selectedDebt?.debt_type === "revolving";
+
+  const effectiveDebtAction =
+    isRevolvingDebt ? debtAction : "payment";
+
   const numericAmount =
     Number(amount || 0);
 
@@ -467,19 +478,34 @@ export default function TransactionForm({
   const effectiveDebtRemaining =
     selectedDebt &&
     isEdit &&
-    originalTransaction?.debt_id === debtId
+    originalTransaction?.debt_id === debtId &&
+    originalTransaction?.debt_action === "payment"
       ? Number(selectedDebt.remaining || 0) +
         originalAmount
       : Number(
           selectedDebt?.remaining || 0
         );
 
+  const effectiveAvailableCredit =
+    selectedDebt &&
+    isEdit &&
+    originalTransaction?.debt_id === debtId &&
+    originalTransaction?.debt_action === "borrow"
+      ? Number(selectedDebt.available_credit || 0) +
+        originalAmount
+      : Number(
+          selectedDebt?.available_credit || 0
+        );
+
   const debtExceeded =
     type === "expense" &&
     isDebtCategory &&
     selectedDebt &&
-    numericAmount >
-      effectiveDebtRemaining;
+    (
+      effectiveDebtAction === "borrow"
+        ? numericAmount > effectiveAvailableCredit
+        : numericAmount > effectiveDebtRemaining
+    );
 
   // -------------------------------------------------------------------------
   // Balance validation
@@ -625,6 +651,7 @@ export default function TransactionForm({
       setFromPocketId("");
       setExpenseCategoryId("");
       setDebtId("");
+      setDebtAction("payment");
       setPayee("");
     }
 
@@ -728,6 +755,10 @@ export default function TransactionForm({
           debtId:
             isDebtCategory
               ? debtId
+              : null,
+          debtAction:
+            isDebtCategory
+              ? effectiveDebtAction
               : null,
           sourceText: null,
         };
@@ -1362,6 +1393,7 @@ export default function TransactionForm({
                   e.target.value
                 );
                 setDebtId("");
+                setDebtAction("payment");
               }}
             >
               <option value="">
@@ -1448,14 +1480,99 @@ export default function TransactionForm({
                         d.debt_id
                       }
                     >
-                      {d.name} · remaining{" "}
+                      {d.name} ·{" "}
+                      {d.debt_type === "revolving"
+                        ? "credit"
+                        : "remaining"}{" "}
                       {formatRp(
-                        d.remaining
+                        d.debt_type === "revolving"
+                          ? d.available_credit
+                          : d.remaining
                       )}
                     </option>
                   )
                 )}
               </select>
+
+              {isRevolvingDebt && (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    marginTop: 10,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDebtAction("borrow")
+                    }
+                    style={{
+                      flex: 1,
+                      padding: "8px",
+                      borderRadius: 8,
+                      border:
+                        debtAction === "borrow"
+                          ? "1px solid var(--pm-accent)"
+                          : "1px solid rgba(255,255,255,0.15)",
+                      background:
+                        debtAction === "borrow"
+                          ? "rgba(34,211,238,0.12)"
+                          : "transparent",
+                      color:
+                        debtAction === "borrow"
+                          ? "var(--pm-accent)"
+                          : "var(--pm-text-secondary)",
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Borrow
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDebtAction("payment")
+                    }
+                    style={{
+                      flex: 1,
+                      padding: "8px",
+                      borderRadius: 8,
+                      border:
+                        debtAction === "payment"
+                          ? "1px solid var(--pm-accent)"
+                          : "1px solid rgba(255,255,255,0.15)",
+                      background:
+                        debtAction === "payment"
+                          ? "rgba(34,211,238,0.12)"
+                          : "transparent",
+                      color:
+                        debtAction === "payment"
+                          ? "var(--pm-accent)"
+                          : "var(--pm-text-secondary)",
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Payment
+                  </button>
+                </div>
+              )}
+
+              {selectedDebt && (
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "var(--pm-text-muted)",
+                    margin: "8px 0 0",
+                  }}
+                >
+                  {effectiveDebtAction === "borrow"
+                    ? `Available credit: ${formatRp(effectiveAvailableCredit)}`
+                    : `Remaining: ${formatRp(effectiveDebtRemaining)}`}
+                </p>
+              )}
 
               {debtExceeded && (
                 <p
@@ -1467,9 +1584,9 @@ export default function TransactionForm({
                       "8px 0 0",
                   }}
                 >
-                  Amount cannot
-                  exceed the
-                  remaining debt.
+                  {effectiveDebtAction === "borrow"
+                    ? "Amount cannot exceed available credit."
+                    : "Amount cannot exceed the remaining debt."}
                 </p>
               )}
             </div>

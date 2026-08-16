@@ -7,7 +7,6 @@ import {
 import "../styles/pocketmaster.css";
 
 function toLocalDateString(d) {
-  const { formatMoney } = useCurrency();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
@@ -64,6 +63,8 @@ export default function Transactions({
   onBack,
   onOpenTransaction,
 }) {
+  const { formatMoney } = useCurrency();
+
   const [transactions, setTransactions] = useState([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);

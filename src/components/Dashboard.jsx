@@ -1225,7 +1225,7 @@ export default function Dashboard({
               padding: 0,
             }}
           >
-            Lihat Semua
+            View All
             <i
               className="ti ti-chevron-right"
               style={{
@@ -1489,7 +1489,7 @@ export default function Dashboard({
             margin: 0,
           }}
         >
-          Transaksi Terakhir
+          Transaction History
         </p>
 
         <button
@@ -1505,7 +1505,7 @@ export default function Dashboard({
             padding: 0,
           }}
         >
-          Lihat Semua
+          View All
           <i
             className="ti ti-chevron-right"
             style={{

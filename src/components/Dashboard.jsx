@@ -1624,36 +1624,88 @@ export default function Dashboard({
                     minWidth: 0,
                   }}
                 >
-                  <p
+                  <div
                     style={{
-                      fontSize: 14,
-                      margin: 0,
-                      fontWeight: 600,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      gap: 8,
                     }}
                   >
-                    {tx.category?.name ||
-                      (tx.type === "transfer"
-                        ? "Transfer"
-                        : "Other")}
-                  </p>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        margin: 0,
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {tx.category?.name ||
+                        (tx.type === "transfer"
+                          ? "Transfer"
+                          : "Other")}
+                    </p>
 
-                  <p
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "var(--pm-text-secondary)",
+                        margin: 0,
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {pocketName || ""}
+                    </p>
+                  </div>
+
+                  <div
                     style={{
-                      fontSize: 12,
-                      color: "var(--pm-text-secondary)",
-                      margin: "2px 0 0",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      gap: 8,
+                      marginTop: 2,
                     }}
                   >
-                    {tx.description
-                      ? `${tx.description}${pocketName ? ` · ${pocketName}` : ""}`
-                      : pocketName || "\u00a0"}
-                  </p>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "var(--pm-text-secondary)",
+                        margin: 0,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {tx.description || "\u00a0"}
+                    </p>
+
+                    <p
+                      className="pm-num"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        margin: 0,
+                        color:
+                          isIncome
+                            ? "var(--pm-success)"
+                            : tx.type === "expense"
+                            ? "var(--pm-danger)"
+                            : "var(--pm-text-primary)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isIncome
+                        ? "+"
+                        : tx.type === "expense"
+                        ? "-"
+                        : ""}
+                      {fmt(tx.amount)}
+                    </p>
+                  </div>
 
                   <p
                     style={{
@@ -1667,30 +1719,6 @@ export default function Dashboard({
                       : formatTime(new Date(tx.created_at))}
                   </p>
                 </div>
-
-                <p
-                  className="pm-num"
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    margin: 0,
-                    color:
-                      isIncome
-                        ? "var(--pm-success)"
-                        : tx.type ===
-                          "expense"
-                        ? "var(--pm-danger)"
-                        : "var(--pm-text-primary)",
-                    flexShrink: 0,
-                  }}
-                >
-                  {isIncome
-                    ? "+"
-                    : tx.type === "expense"
-                    ? "-"
-                    : ""}
-                  {fmt(tx.amount)}
-                </p>
 
                 {tx.proof_url && (
                   <i

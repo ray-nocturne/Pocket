@@ -333,6 +333,7 @@ export default function Dashboard({
   onAddTransaction,
   onAddPocket,
   onAddDebt,
+  onOpenDebts,
   onOpenProfile,
   onOpenCategory,
   onOpenBudget,
@@ -1032,17 +1033,52 @@ export default function Dashboard({
 
       {/* Debts */}
 
-      <p
-        className="pm-label"
+      <div
         style={{
-          fontSize: 15,
-          fontWeight: 600,
-          color: "var(--pm-text-primary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
           marginBottom: 10,
         }}
       >
-        Debts
-      </p>
+        <p
+          className="pm-label"
+          style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: "var(--pm-text-primary)",
+            margin: 0,
+          }}
+        >
+          Debts
+        </p>
+
+        {debts.length > 0 && (
+          <button
+            type="button"
+            onClick={onOpenDebts}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--pm-accent)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            Lihat Semua
+            <i
+              className="ti ti-chevron-right"
+              style={{
+                fontSize: 13,
+                marginLeft: 3,
+                verticalAlign: "-1px",
+              }}
+            />
+          </button>
+        )}
+      </div>
 
       {debts.length > 0 ? (
         <div

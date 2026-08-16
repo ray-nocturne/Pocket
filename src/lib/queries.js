@@ -178,6 +178,42 @@ export async function getDebts({
   return data;
 }
 
+export async function getDebtDetail(debtId) {
+  const userId = await getCurrentUserId();
+
+  const [debtResult, transactionResult] =
+    await Promise.all([
+      supabase
+        .from("debt_balances")
+        .select("*")
+        .eq("debt_id", debtId)
+        .eq("owner_id", userId)
+        .single(),
+
+      supabase
+        .from("transactions")
+        .select(TRANSACTION_SELECT)
+        .eq("debt_id", debtId)
+        .eq("owner_id", userId)
+        .order("date", {
+          ascending: false,
+        })
+        .order("created_at", {
+          ascending: false,
+        }),
+    ]);
+
+  if (debtResult.error) throw debtResult.error;
+  if (transactionResult.error) {
+    throw transactionResult.error;
+  }
+
+  return {
+    debt: debtResult.data,
+    transactions: transactionResult.data || [],
+  };
+}
+
 export async function addDebt({
   name,
   totalAmount,

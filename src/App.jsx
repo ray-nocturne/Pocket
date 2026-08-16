@@ -12,6 +12,8 @@ import TransactionDetail from "./components/TransactionDetail";
 import PocketDetail from "./components/PocketDetail";
 import AllPockets from "./components/AllPockets";
 import AccountSettings from "./components/AccountSettings";
+import Debts from "./components/Debts";
+import DebtDetail from "./components/DebtDetail";
 import Transactions from "./components/Transactions";
 
 export default function App() {
@@ -25,6 +27,9 @@ export default function App() {
     useState(null);
 
   const [selectedPocketId, setSelectedPocketId] =
+    useState(null);
+
+  const [selectedDebtId, setSelectedDebtId] =
     useState(null);
 
   const [pocketOrigin, setPocketOrigin] =
@@ -147,6 +152,52 @@ export default function App() {
           setSelectedTransaction(transaction);
           setScreen({
             name: "transaction-detail",
+          });
+        }}
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* DEBT DETAIL */
+  /* ================================================================ */
+
+  if (screen.name === "debt-detail") {
+    return (
+      <DebtDetail
+        debtId={selectedDebtId}
+        onBack={() =>
+          setScreen({
+            name: "debts",
+          })
+        }
+        onOpenTransaction={(transaction) => {
+          setSelectedTransaction(transaction);
+          setScreen({
+            name: "transaction-detail",
+          });
+        }}
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* DEBTS */
+  /* ================================================================ */
+
+  if (screen.name === "debts") {
+    return (
+      <Debts
+        onBack={goDashboard}
+        onAddDebt={() =>
+          setScreen({
+            name: "add-debt",
+          })
+        }
+        onOpenDebt={(debtId) => {
+          setSelectedDebtId(debtId);
+          setScreen({
+            name: "debt-detail",
           });
         }}
       />
@@ -330,6 +381,12 @@ export default function App() {
       onAddDebt={() =>
         setScreen({
           name: "add-debt",
+        })
+      }
+
+      onOpenDebts={() =>
+        setScreen({
+          name: "debts",
         })
       }
 

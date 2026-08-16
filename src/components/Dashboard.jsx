@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useCurrency } from "../lib/CurrencyContext";
 import {
   getDashboardData,
   getRecentTransactions,
@@ -10,9 +11,6 @@ import TabBar from "./TabBar";
 function toLocalDateString(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-
-const fmt = (n) =>
-  "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
 
 const POCKET_COLORS = [
   "#0A84FF",
@@ -340,6 +338,9 @@ export default function Dashboard({
   onOpenTransactions,
   activeTab = "home",
 }) {
+  const { formatMoney } = useCurrency();
+  const fmt = (n) => formatMoney(n);
+
   const [data, setData] = useState(null);
   const [recent, setRecent] = useState([]);
   const [profile, setProfile] = useState(null);

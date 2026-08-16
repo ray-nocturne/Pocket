@@ -1,13 +1,31 @@
 import { useEffect, useRef, useState } from "react";
-import { getProfile, signOut, uploadAvatar } from "../lib/queries";
+import {
+  getProfile,
+  signOut,
+  uploadAvatar,
+  updateCurrencySettings,
+} from "../lib/queries";
 import TabBar from "./TabBar";
 import "../styles/pocketmaster.css";
+import { currencies, SEPARATOR_STYLES } from "../lib/currency";
+import { useCurrency } from "../lib/CurrencyContext";
 
 const FRAME = 220;
 const OUTPUT = 400;
 
 export default function Profile({ onHome, onOpenPocketsList, onOpenCategory, onOpenBudget, onOpenAccountSettings }) {
+  const {
+    currency,
+    numberFormat,
+    showDecimals,
+    refreshCurrencySettings,
+  } = useCurrency();
+
   const [profile, setProfile] = useState(null);
+  const [selectedCurrency, setSelectedCurrency] = useState("IDR");
+  const [selectedNumberFormat, setSelectedNumberFormat] = useState("eu");
+  const [selectedShowDecimals, setSelectedShowDecimals] = useState(false);
+  const [savingCurrency, setSavingCurrency] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef(null);
@@ -127,6 +145,36 @@ export default function Profile({ onHome, onOpenPocketsList, onOpenCategory, onO
     }
   }
 
+  async function handleSaveCurrencySettings() {
+    if (!profile) return;
+
+    setSavingCurrency(true);
+
+    try {
+      await updateCurrencySettings(profile.id, {
+        currency: selectedCurrency,
+        numberFormat: selectedNumberFormat,
+        showDecimals: selectedShowDecimals,
+      });
+
+      await refreshCurrencySettings();
+
+      setProfile((p) => ({
+        ...p,
+        currency: selectedCurrency,
+        number_format: selectedNumberFormat,
+        show_decimals: selectedShowDecimals,
+      }));
+    } catch (error) {
+      console.error(
+        "Failed saving currency settings:",
+        error
+      );
+    } finally {
+      setSavingCurrency(false);
+    }
+  }
+
   if (cropSrc) {
     return (
       <div className="pm-app" style={{ textAlign: "center" }}>
@@ -196,22 +244,7 @@ export default function Profile({ onHome, onOpenPocketsList, onOpenCategory, onO
     <div className="pm-app">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <p style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "var(--pm-text-primary)" }}>Profile</p>
-        <button
-          onClick={onOpenAccountSettings}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: "var(--pm-surface)",
-            border: "1px solid var(--pm-border)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-          }}
-        >
-          <i className="ti ti-settings" style={{ fontSize: 17, color: "var(--pm-text-secondary)" }} />
-        </button>
+
       </div>
 
       <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -265,6 +298,105 @@ export default function Profile({ onHome, onOpenPocketsList, onOpenCategory, onO
         <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: 0 }}>
           Share your pockets using your username, once this launches
         </p>
+      </div>
+
+      <div className="pm-card" style={{ marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 10,
+          }}
+        >
+          <i
+            className="ti ti-currency-dollar"
+            style={{
+              fontSize: 17,
+              color: "var(--pm-text-secondary)",
+            }}
+          />
+          <p
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              margin: 0,
+              flex: 1,
+            }}
+          >
+            Currency
+          </p>
+        </div>
+
+        <select
+          className="pm-input"
+          value={selectedCurrency}
+          onChange={(e) =>
+            setSelectedCurrency(e.target.value)
+          }
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            marginBottom: 12,
+          }}
+        >
+          {currencies.map((item) => (
+            <option
+              key={item.code}
+              value={item.code}
+            >
+              {item.code} — {item.name} ({item.symbol})
+            </option>
+          ))}
+        </select>
+
+        <div style={{ marginBottom: 16 }}>
+          <p
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              margin: "0 0 8px",
+              color: "var(--pm-text-secondary)",
+            }}
+          >
+            Number format
+          </p>
+
+          <select
+            className="pm-input"
+            value={selectedNumberFormat}
+            onChange={(e) =>
+              setSelectedNumberFormat(e.target.value)
+            }
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+            }}
+          >
+            {SEPARATOR_STYLES.map((item) => (
+              <option
+                key={item.value}
+                value={item.value}
+              >
+                {item.example}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          type="button"
+          className="pm-btn-primary"
+          onClick={handleSaveCurrencySettings}
+          disabled={savingCurrency}
+          style={{
+            width: "100%",
+          }}
+        >
+          {savingCurrency
+            ? "Saving..."
+            : "Save Currency Settings"}
+        </button>
       </div>
 
       <div className="pm-card" style={{ padding: 0 }}>

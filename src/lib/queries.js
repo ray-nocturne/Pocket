@@ -416,7 +416,7 @@ export async function uploadAvatar(file) {
 
 export async function updateProfileDetails(
   id,
-  { username, fullName }
+  { username, fullName, currency, numberFormat, showDecimals }
 ) {
   const {
     error,
@@ -425,6 +425,25 @@ export async function updateProfileDetails(
     .update({
       username,
       full_name: fullName,
+      currency,
+      number_format: numberFormat,
+      show_decimals: showDecimals,
+    })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function updateCurrencySettings(
+  id,
+  { currency, numberFormat, showDecimals }
+) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      currency,
+      number_format: numberFormat,
+      show_decimals: showDecimals,
     })
     .eq("id", id);
 

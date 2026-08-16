@@ -601,6 +601,42 @@ const TRANSACTION_SELECT = `
 `;
 
 // ---------------------------------------------------------------------------
+// Transaction History
+// ---------------------------------------------------------------------------
+
+export async function getTransactions(
+  page = 0,
+  pageSize = 30
+) {
+  const userId = await getCurrentUserId();
+
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("transactions")
+    .select(TRANSACTION_SELECT)
+    .eq("owner_id", userId)
+    .order("date", {
+      ascending: false,
+    })
+    .order("created_at", {
+      ascending: false,
+    })
+    .range(from, to);
+
+  if (error) throw error;
+
+  return {
+    data: data || [],
+    hasMore: (data || []).length === pageSize,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Recent Transactions
 // ---------------------------------------------------------------------------
 

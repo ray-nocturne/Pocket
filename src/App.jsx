@@ -12,6 +12,7 @@ import TransactionDetail from "./components/TransactionDetail";
 import PocketDetail from "./components/PocketDetail";
 import AllPockets from "./components/AllPockets";
 import AccountSettings from "./components/AccountSettings";
+import Transactions from "./components/Transactions";
 
 export default function App() {
   const [session, setSession] = useState(undefined);
@@ -130,6 +131,24 @@ export default function App() {
       <AddDebtForm
         onCancel={goDashboard}
         onSaved={goDashboard}
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* TRANSACTIONS */
+  /* ================================================================ */
+
+  if (screen.name === "transactions") {
+    return (
+      <Transactions
+        onBack={goDashboard}
+        onOpenTransaction={(transaction) => {
+          setSelectedTransaction(transaction);
+          setScreen({
+            name: "transaction-detail",
+          });
+        }}
       />
     );
   }
@@ -349,6 +368,13 @@ export default function App() {
           name: "transaction-detail",
         });
       }}
+
+      
+      onOpenTransactions={() =>
+        setScreen({
+          name: "transactions",
+        })
+      }
     />
   );
 }

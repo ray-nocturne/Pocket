@@ -23,6 +23,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 - Added loading, empty, and error states for categories.
 - Connected Category screen to the existing Supabase `categories` table.
 - Activated the existing Category footer navigation using the existing `ti-tag` icon.
+- Added Transaction History screen at `src/components/Transactions.jsx`.
+- Added paginated transaction history loading with 30 transactions per page.
+- Added date-grouped transaction history.
+- Added transaction navigation from Dashboard via `Lihat Semua`.
+- Reused the existing Transaction Detail screen from Transaction History.
 
 ### Fixed
 - Signup failing with 500 error: `handle_new_user()` trigger now generates a unique username by appending a numeric suffix on collision (was previously crashing on duplicate `username` derived from email prefix).
@@ -36,6 +41,10 @@ Each session's work is grouped under its date. Newest entries at the top.
   - Expense uses a 30% red background with full red text.
   - Income uses a 30% green background with full green text.
 - Existing Pocket Master colors, typography, spacing, and HUD styling were preserved.
+- Dashboard continues to show the 15 most recent transactions.
+- Dashboard transaction history now includes a `Lihat Semua` action for opening the full Transaction History screen.
+- Removed the obsolete `Punya pocket lain? + Tambah Pocket` section from Dashboard because Pocket management is now available through the Pocket screen.
+- Transaction History remains a secondary screen and is intentionally not added to the primary TabBar.
 
 ### Removed
 - Duplicate catch-all categories "Meals" and "Transportation" that matched their own group name (0 transactions affected).

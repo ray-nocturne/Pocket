@@ -324,6 +324,7 @@ export default function Dashboard({
   onOpenCategory,
   onOpenBudget,
   onOpenTransaction,
+  onOpenTransactions,
   activeTab = "home",
 }) {
   const [data, setData] = useState(null);
@@ -1247,17 +1248,50 @@ export default function Dashboard({
 
       {/* Recent Transactions */}
 
-      <p
-        className="pm-label"
+      <div
         style={{
-          fontSize: 15,
-          fontWeight: 600,
-          color: "var(--pm-text-primary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
           marginBottom: 10,
         }}
       >
-        Transaksi Terakhir
-      </p>
+        <p
+          className="pm-label"
+          style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: "var(--pm-text-primary)",
+            margin: 0,
+          }}
+        >
+          Transaksi Terakhir
+        </p>
+
+        <button
+          type="button"
+          onClick={onOpenTransactions}
+          style={{
+            background: "none",
+            border: "none",
+            color: "var(--pm-accent)",
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          Lihat Semua
+          <i
+            className="ti ti-chevron-right"
+            style={{
+              fontSize: 13,
+              marginLeft: 3,
+              verticalAlign: "-1px",
+            }}
+          />
+        </button>
+      </div>
 
       {recent.length === 0 && (
         <p
@@ -1437,42 +1471,6 @@ export default function Dashboard({
           })}
         </div>
       ))}
-
-      {/* Add Pocket */}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <p
-          style={{
-            fontSize: 13,
-            color: "var(--pm-text-secondary)",
-            margin: 0,
-          }}
-        >
-          Punya pocket lain?
-        </p>
-
-        <button
-          type="button"
-          onClick={onAddPocket}
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--pm-accent)",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          + Tambah Pocket
-        </button>
-      </div>
 
       {/* FAB */}
 

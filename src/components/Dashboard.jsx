@@ -848,7 +848,16 @@ export default function Dashboard({
           </p>
         </div>
 
-        {pockets.map((p) => (
+        {[...pockets]
+          .sort((a, b) => {
+            const orderedTypes = ["bank", "emoney", "cash"];
+            const typeDiff =
+              orderedTypes.indexOf(a.type) -
+              orderedTypes.indexOf(b.type);
+            if (typeDiff !== 0) return typeDiff;
+            return Number(b.balance || 0) - Number(a.balance || 0);
+          })
+          .map((p) => (
           <button
             key={p.pocket_id}
             onClick={() => onOpenPocket?.(p.pocket_id)}

@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 6)
+
+### Fixed
+- Pocket carousel cards on the Dashboard were in unsorted/random order, inconsistent with the donut chart legend right above them. Now sorted the same way: grouped by pocket type (bank, then emoney, then cash), and within each type ordered by balance descending.
+
 ## 2026-08-16 (cont'd 5)
 
 ### Changed

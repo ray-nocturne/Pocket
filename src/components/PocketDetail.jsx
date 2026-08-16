@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { getPocketDetail, getPocketTransactions, deletePocket } from "../lib/queries";
+import { useCurrency } from "../lib/CurrencyContext";
 import "../styles/pocketmaster.css";
 
-const fmt = (n) => "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
+const fmt = (n, formatMoney) => formatMoney(n);
 
 const pad = (n) => n.toString().padStart(2, "0");
 
@@ -83,7 +84,7 @@ function CategoryDonut({ segments, active, onActivate, onClear, size = 96 }) {
           <>
             <p style={{ fontSize: 10, color: "var(--pm-text-secondary)", margin: "0 0 2px" }}>{activeSeg.name}</p>
             <p className="pm-num" style={{ fontSize: 12, fontWeight: 700, margin: 0, color: "var(--pm-text-primary)" }}>
-              {fmt(activeSeg.amount)}
+              {fmt(activeSeg.amount, formatMoney)}
             </p>
           </>
         ) : (
@@ -326,18 +327,18 @@ export default function PocketDetail({ pocketId, onBack, onOpenTransaction, onDe
       <div className="pm-card pm-card-hud" style={{ marginBottom: 14 }}>
         <p style={{ fontSize: 11, color: "var(--pm-text-secondary)", margin: "0 0 4px" }}>Current balance</p>
         <p className="pm-num" style={{ fontSize: 26, fontWeight: 700, margin: "0 0 14px", color: "var(--pm-text-primary)" }}>
-          {fmt(pocket.balance)}
+          {fmt(pocket.balance, formatMoney)}
         </p>
 
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{ flex: 1, background: "var(--pm-bg)", border: "1px solid var(--pm-border)", borderRadius: 8, padding: "10px 12px" }}>
             <p style={{ fontSize: 10, color: "var(--pm-text-secondary)", margin: "0 0 4px" }}>Income this month</p>
-            <p className="pm-num" style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "var(--pm-success)" }}>{fmt(income)}</p>
+            <p className="pm-num" style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "var(--pm-success)" }}>{fmt(income, formatMoney)}</p>
             <p style={{ fontSize: 10, color: "var(--pm-text-secondary)", margin: "2px 0 0" }}>{incomeCount}x transactions</p>
           </div>
           <div style={{ flex: 1, background: "var(--pm-bg)", border: "1px solid var(--pm-border)", borderRadius: 8, padding: "10px 12px" }}>
             <p style={{ fontSize: 10, color: "var(--pm-text-secondary)", margin: "0 0 4px" }}>Expense this month</p>
-            <p className="pm-num" style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "var(--pm-danger)" }}>{fmt(expense)}</p>
+            <p className="pm-num" style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "var(--pm-danger)" }}>{fmt(expense, formatMoney)}</p>
             <p style={{ fontSize: 10, color: "var(--pm-text-secondary)", margin: "2px 0 0" }}>{expenseCount}x transactions</p>
           </div>
         </div>
@@ -346,7 +347,7 @@ export default function PocketDetail({ pocketId, onBack, onOpenTransaction, onDe
       <div className="pm-card" style={{ marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <p style={{ fontSize: 13, fontWeight: 600, margin: 0, color: "var(--pm-text-primary)" }}>Expense by category</p>
-          <p className="pm-num" style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "var(--pm-text-primary)" }}>{fmt(expense)}</p>
+          <p className="pm-num" style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "var(--pm-text-primary)" }}>{fmt(expense, formatMoney)}</p>
         </div>
         {categorySlices.length === 0 ? (
           <p style={{ fontSize: 12, color: "var(--pm-text-secondary)", textAlign: "center", padding: "10px 0" }}>
@@ -455,7 +456,7 @@ export default function PocketDetail({ pocketId, onBack, onOpenTransaction, onDe
               }}
             >
               {isIncome ? "+" : tx.type === "expense" ? "-" : ""}
-              {fmt(tx.amount)}
+              {fmt(tx.amount, formatMoney)}
             </p>
             {tx.proof_url && (
               <i className="ti ti-photo" style={{ fontSize: 14, color: "var(--pm-text-secondary)", flexShrink: 0 }} />

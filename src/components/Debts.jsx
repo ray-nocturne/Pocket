@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { getDebts } from "../lib/queries";
+import { useCurrency } from "../lib/CurrencyContext";
 import "../styles/pocketmaster.css";
 
-const fmt = (n) =>
-  "Rp" + Math.round(Math.abs(Number(n) || 0)).toLocaleString("id-ID");
+const fmt = (n, formatMoney) => formatMoney(n);
 
 export default function Debts({
   onBack,
   onAddDebt,
   onOpenDebt,
 }) {
+  const { formatMoney } = useCurrency();
+
   const [debts, setDebts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -154,7 +156,7 @@ export default function Debts({
               margin: "0 0 14px",
             }}
           >
-            {fmt(totalRemaining)}
+            {fmt(totalRemaining, formatMoney)}
           </p>
 
           <div
@@ -221,7 +223,7 @@ export default function Debts({
                   margin: 0,
                 }}
               >
-                {fmt(totalPrincipal)}
+                {fmt(totalPrincipal, formatMoney)}
               </p>
             </div>
           </div>
@@ -452,7 +454,8 @@ export default function Debts({
                         >
                           Installment{" "}
                           {fmt(
-                            debt.monthly_installment
+                            debt.monthly_installment,
+                            formatMoney
                           )}
                           /mo
                         </p>
@@ -479,7 +482,7 @@ export default function Debts({
                       color: "#F5A623",
                     }}
                   >
-                    {fmt(remaining)}
+                    {fmt(remaining, formatMoney)}
                   </p>
 
                   <p

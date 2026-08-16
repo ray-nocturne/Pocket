@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { getDashboardData } from "../lib/queries";
+import { useCurrency } from "../lib/CurrencyContext";
 import TabBar from "./TabBar";
 import "../styles/pocketmaster.css";
 
-const fmt = (n) => "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
+const fmt = (n, formatMoney) => formatMoney(n);
 
 function typeLabel(type) {
   return { bank: "Bank Account", emoney: "E-money", cash: "Cash" }[type] ?? type;
@@ -24,6 +25,8 @@ function pocketIcon(type) {
 const TYPE_ORDER = ["bank", "emoney", "cash"];
 
 export default function AllPockets({ onOpenPocket, onAddPocket, onHome, onOpenCategory, onBudget, onOpenProfile }) {
+  const { formatMoney } = useCurrency();
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -73,7 +76,7 @@ export default function AllPockets({ onOpenPocket, onAddPocket, onHome, onOpenCa
       <div className="pm-card pm-card-hud" style={{ marginBottom: 12 }}>
         <p style={{ fontSize: 11, color: "var(--pm-text-secondary)", margin: "0 0 4px" }}>Total across all pockets</p>
         <p className="pm-num" style={{ fontSize: 22, fontWeight: 700, margin: 0, color: "var(--pm-text-primary)", textAlign: "right" }}>
-          {fmt(totalBalance)}
+          {fmt(totalBalance, formatMoney)}
         </p>
       </div>
 
@@ -156,7 +159,7 @@ export default function AllPockets({ onOpenPocket, onAddPocket, onHome, onOpenCa
 
               <p className="pm-num" style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "var(--pm-text-primary)", whiteSpace: "nowrap" }}>
                 {p.balance < 0 ? "-" : ""}
-                {fmt(p.balance)}
+                {fmt(p.balance, formatMoney)}
               </p>
 
               <i className="ti ti-chevron-right" style={{ fontSize: 16, color: "var(--pm-text-secondary)", flexShrink: 0 }} />

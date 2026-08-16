@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { deleteTransaction } from "../lib/queries";
+import { useCurrency } from "../lib/CurrencyContext";
 import "../styles/pocketmaster.css";
 
-const formatIDR = (value) =>
-  "Rp" + Number(value || 0).toLocaleString("id-ID");
+const formatIDR = (value, formatMoney) =>
+  formatMoney(value);
 
 function formatDate(date) {
   if (!date) return "-";
@@ -36,6 +37,8 @@ export default function TransactionDetail({
   onEdit,
   onDeleted,
 }) {
+  const { formatMoney } = useCurrency();
+
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
@@ -192,7 +195,7 @@ export default function TransactionDetail({
           }}
         >
           {amountPrefix}
-          {formatIDR(transaction.amount)}
+          {formatIDR(transaction.amount, formatMoney)}
         </p>
 
         <p
@@ -359,7 +362,8 @@ export default function TransactionDetail({
             <DetailRow
               label="Transaction fee"
               value={formatIDR(
-                transaction.fee_amount
+                transaction.fee_amount,
+                formatMoney
               )}
             />
           )}

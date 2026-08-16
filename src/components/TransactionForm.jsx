@@ -9,6 +9,7 @@ import {
   updateTransaction,
 } from "../lib/queries";
 import PickerSheet from "./PickerSheet";
+import { useCurrency } from "../lib/CurrencyContext";
 import "../styles/pocketmaster.css";
 
 function toLocalDateString(d) {
@@ -25,14 +26,15 @@ const PAYMENT_METHODS = [
 
 const MAX_PROOF_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
-const formatRp = (value) =>
-  "Rp" + Number(value || 0).toLocaleString("id-ID");
-
 export default function TransactionForm({
   onCancel,
   onSaved,
   transaction = null,
 }) {
+  const { formatMoney } = useCurrency();
+
+  const formatRp = (value) => formatMoney(value);
+
   const isEdit = Boolean(transaction?.id);
 
   // -------------------------------------------------------------------------

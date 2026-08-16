@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import {
   getDebtDetail,
 } from "../lib/queries";
+import { useCurrency } from "../lib/CurrencyContext";
 import "../styles/pocketmaster.css";
 
-const fmt = (n) =>
-  "Rp" +
-  Math.round(
-    Math.abs(Number(n) || 0)
-  ).toLocaleString("id-ID");
+const fmt = (n, formatMoney) => formatMoney(n);
 
 function formatDate(dateString) {
   if (!dateString) return "-";
@@ -303,7 +300,7 @@ export default function DebtDetail({
             color: "#F5A623",
           }}
         >
-          {fmt(remaining)}
+          {fmt(remaining, formatMoney)}
         </p>
 
         <div
@@ -321,7 +318,7 @@ export default function DebtDetail({
                 "var(--pm-text-secondary)",
             }}
           >
-            dari {fmt(total)}
+            dari {fmt(total, formatMoney)}
           </span>
 
           <span
@@ -394,7 +391,8 @@ export default function DebtDetail({
           >
             {debt.monthly_installment
               ? `${fmt(
-                  debt.monthly_installment
+                  debt.monthly_installment,
+                  formatMoney
                 )}/mo`
               : "-"}
           </p>
@@ -640,7 +638,7 @@ export default function DebtDetail({
                           "#FF6B52",
                       }}
                     >
-                      -{fmt(tx.amount)}
+                      -{fmt(tx.amount, formatMoney)}
                     </p>
 
                     <i
@@ -670,7 +668,7 @@ export default function DebtDetail({
           }}
         >
           Total transaksi:{" "}
-          {fmt(paymentTotal)}
+          {fmt(paymentTotal, formatMoney)}
         </p>
       )}
 

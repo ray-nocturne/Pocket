@@ -7,6 +7,12 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 2)
+
+### Added
+- Debt payments split into their own dedicated flow in TransactionForm: a "Regular Expense" / "Debt Payment" toggle replaces having "Debt" buried as one of 40+ categories. Selecting "Debt Payment" auto-assigns the Debt category behind the scenes, hides the "For whom" field, and shows a searchable debt picker (via PickerSheet) plus the Borrow/Payment toggle for revolving debts.
+- "Debt" category removed from the regular category picker list (it's only reachable via the new Debt Payment toggle now).
+
 ## 2026-08-16 (cont'd)
 
 ### Added

@@ -91,6 +91,7 @@ export default function TransactionForm({
   const [expenseCategoryId, setExpenseCategoryId] = useState("");
   const [debtId, setDebtId] = useState("");
   const [debtAction, setDebtAction] = useState("payment");
+  const [expenseKind, setExpenseKind] = useState("regular");
   const [openPicker, setOpenPicker] = useState(null);
 
   // -------------------------------------------------------------------------
@@ -246,6 +247,10 @@ export default function TransactionForm({
           data.debt_action || "payment"
         );
 
+        setExpenseKind(
+          data.debt_id ? "debt" : "regular"
+        );
+
         setTransferFrom(
           data.from_pocket_id || ""
         );
@@ -392,12 +397,27 @@ export default function TransactionForm({
 
   const expenseCategoryOptions = useMemo(
     () =>
-      expenseCategories.map((c) => ({
-        value: c.id,
-        label: c.name,
-        group: c.group_name || "General",
-      })),
+      expenseCategories
+        .filter((c) => c.name !== "Debt")
+        .map((c) => ({
+          value: c.id,
+          label: c.name,
+          group: c.group_name || "General",
+        })),
     [expenseCategories]
+  );
+
+  const debtOptions = useMemo(
+    () =>
+      debts.map((d) => ({
+        value: d.debt_id,
+        label: d.name,
+        hint:
+          d.debt_type === "revolving"
+            ? `credit ${formatRp(d.available_credit)}`
+            : `remaining ${formatRp(d.remaining)}`,
+      })),
+    [debts]
   );
 
   // -------------------------------------------------------------------------
@@ -450,9 +470,11 @@ export default function TransactionForm({
         c.id === expenseCategoryId
     );
 
-  const isDebtCategory =
-    selectedExpenseCategory?.name ===
-    "Debt";
+  const debtCategory = expenseCategories.find(
+    (c) => c.name === "Debt"
+  );
+
+  const isDebtCategory = expenseKind === "debt";
 
   const selectedDebt = debts.find(
     (d) =>
@@ -686,6 +708,7 @@ export default function TransactionForm({
       setExpenseCategoryId("");
       setDebtId("");
       setDebtAction("payment");
+      setExpenseKind("regular");
       setPayee("");
     }
 
@@ -783,7 +806,7 @@ export default function TransactionForm({
           ...base,
           fromPocketId,
           toPocketId: null,
-          payee,
+          payee: isDebtCategory ? null : payee,
           categoryId:
             expenseCategoryId,
           debtId:
@@ -1447,54 +1470,85 @@ export default function TransactionForm({
       {/* ================================================================== */}
       {type === "expense" && (
         <>
-          <Field label="For whom">
-            <input
-              className="pm-input"
-              value={payee}
-              onChange={(e) =>
-                setPayee(
-                  e.target.value
-                )
-              }
-              placeholder="e.g. Mrs. Siti's shop"
-            />
-          </Field>
-
-          <Field label="Category">
+          <div className="pm-segmented" style={{ marginBottom: 16 }}>
             <button
               type="button"
-              className="pm-select"
-              onClick={() => setOpenPicker("expenseCategory")}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                boxSizing: "border-box",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                fontSize: 15,
-                textAlign: "left",
+              className={expenseKind === "regular" ? "active-expense" : ""}
+              onClick={() => {
+                setExpenseKind("regular");
+                setExpenseCategoryId("");
+                setDebtId("");
+                setDebtAction("payment");
               }}
             >
-              <span
-                style={{
-                  color: expenseCategoryId
-                    ? "var(--pm-text-primary)"
-                    : "var(--pm-text-muted)",
-                }}
-              >
-                {expenseCategories.find((c) => c.id === expenseCategoryId)
-                  ?.name || "Select category"}
-              </span>
-              <i
-                className="ti ti-chevron-down"
-                style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
-              />
+              Regular Expense
             </button>
-          </Field>
 
-          {isDebtCategory && (
+            <button
+              type="button"
+              className={expenseKind === "debt" ? "active-expense" : ""}
+              onClick={() => {
+                setExpenseKind("debt");
+                setExpenseCategoryId(debtCategory?.id || "");
+                setPayee("");
+              }}
+            >
+              Debt Payment
+            </button>
+          </div>
+
+          {expenseKind === "regular" && (
+            <>
+              <Field label="For whom">
+                <input
+                  className="pm-input"
+                  value={payee}
+                  onChange={(e) =>
+                    setPayee(
+                      e.target.value
+                    )
+                  }
+                  placeholder="e.g. Mrs. Siti's shop"
+                />
+              </Field>
+
+              <Field label="Category">
+                <button
+                  type="button"
+                  className="pm-select"
+                  onClick={() => setOpenPicker("expenseCategory")}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    fontSize: 15,
+                    textAlign: "left",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: expenseCategoryId
+                        ? "var(--pm-text-primary)"
+                        : "var(--pm-text-muted)",
+                    }}
+                  >
+                    {expenseCategories.find((c) => c.id === expenseCategoryId)
+                      ?.name || "Select category"}
+                  </span>
+                  <i
+                    className="ti ti-chevron-down"
+                    style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+                  />
+                </button>
+              </Field>
+            </>
+          )}
+
+          {expenseKind === "debt" && (
             <div
               style={{
                 background:
@@ -1513,51 +1567,41 @@ export default function TransactionForm({
                     "0 0 8px",
                 }}
               >
-                Which debt to pay?
+                Which debt?
               </p>
 
-              <select
+              <button
+                type="button"
                 className="pm-select"
+                onClick={() => setOpenPicker("debt")}
                 style={{
-                  background:
-                    "var(--pm-surface-2)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                  boxSizing: "border-box",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  fontSize: 15,
+                  textAlign: "left",
+                  background: "var(--pm-surface-2)",
                 }}
-                value={
-                  debtId
-                }
-                onChange={(e) =>
-                  setDebtId(
-                    e.target.value
-                  )
-                }
               >
-                <option value="">
-                  Select debt
-                </option>
-
-                {debts.map(
-                  (d) => (
-                    <option
-                      key={
-                        d.debt_id
-                      }
-                      value={
-                        d.debt_id
-                      }
-                    >
-                      {d.name} ·{" "}
-                      {d.debt_type === "revolving"
-                        ? "credit"
-                        : "remaining"}{" "}
-                      {formatRp(
-                        d.debt_type === "revolving"
-                          ? d.available_credit
-                          : d.remaining
-                      )}
-                    </option>
-                  )
-                )}
-              </select>
+                <span
+                  style={{
+                    color: debtId
+                      ? "var(--pm-text-primary)"
+                      : "var(--pm-text-muted)",
+                  }}
+                >
+                  {debts.find((d) => d.debt_id === debtId)?.name ||
+                    "Select debt"}
+                </span>
+                <i
+                  className="ti ti-chevron-down"
+                  style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+                />
+              </button>
 
               {isRevolvingDebt && (
                 <div
@@ -2055,6 +2099,16 @@ export default function TransactionForm({
         options={pocketOptions}
         value={transferTo}
         onSelect={setTransferTo}
+      />
+
+      <PickerSheet
+        open={openPicker === "debt"}
+        onClose={() => setOpenPicker(null)}
+        title="Which debt?"
+        searchPlaceholder="Search debt..."
+        options={debtOptions}
+        value={debtId}
+        onSelect={setDebtId}
       />
 
       <PickerSheet

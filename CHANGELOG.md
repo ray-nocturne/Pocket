@@ -7,6 +7,12 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 5)
+
+### Changed
+- Completed the category taxonomy migration (designed earlier this session). Cleaned up 13 leftover duplicate categories still sitting under the old "General" group in both expense (Bills, Groceries, Health, Housing/Rent, Personal Care, Shopping) and income (Bonus, Freelance, Gift, Investment Return, Other, Refund, Salary) after the new grouped taxonomy had already been built alongside them. One income transaction using the old "Other" category was reassigned to "Other Income > Other" before deletion. Final taxonomy also includes additional groups/categories beyond the original plan (Wellness group, Alcohol/Tobacco under Lifestyle, Credit Card Payment under Financial) added intentionally for more granularity. Final count: 95 expense categories, 23 income categories.
+- Updated `handle_new_user()` trigger so new signups now get seeded with the current 118-category taxonomy (with correct `group_name` on every row) instead of the old 12-category default set.
+
 ## 2026-08-16 (cont'd 4)
 
 ### Added

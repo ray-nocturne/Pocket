@@ -8,6 +8,7 @@ import {
   addTransaction,
   updateTransaction,
 } from "../lib/queries";
+import PickerSheet from "./PickerSheet";
 import "../styles/pocketmaster.css";
 
 const PAYMENT_METHODS = [
@@ -90,6 +91,7 @@ export default function TransactionForm({
   const [expenseCategoryId, setExpenseCategoryId] = useState("");
   const [debtId, setDebtId] = useState("");
   const [debtAction, setDebtAction] = useState("payment");
+  const [openPicker, setOpenPicker] = useState(null);
 
   // -------------------------------------------------------------------------
   // Transfer
@@ -365,6 +367,38 @@ export default function TransactionForm({
     setProofFileSize(0);
     setProofError("");
   }
+
+  // -------------------------------------------------------------------------
+  // Picker sheet options
+  // -------------------------------------------------------------------------
+  const pocketOptions = useMemo(
+    () =>
+      pockets.map((p) => ({
+        value: p.pocket_id,
+        label: p.name,
+        hint: formatRp(p.balance),
+      })),
+    [pockets]
+  );
+
+  const incomeCategoryOptions = useMemo(
+    () =>
+      incomeCategories.map((c) => ({
+        value: c.id,
+        label: c.name,
+      })),
+    [incomeCategories]
+  );
+
+  const expenseCategoryOptions = useMemo(
+    () =>
+      expenseCategories.map((c) => ({
+        value: c.id,
+        label: c.name,
+        group: c.group_name || "General",
+      })),
+    [expenseCategories]
+  );
 
   // -------------------------------------------------------------------------
   // Selected pockets
@@ -1023,24 +1057,37 @@ export default function TransactionForm({
       {/* Pocket */}
       {type === "income" && (
         <Field label="To pocket">
-          <select
+          <button
+            type="button"
             className="pm-select"
-            value={toPocketId}
-            onChange={(e) =>
-              setToPocketId(e.target.value)
-            }
+            onClick={() => setOpenPicker("toPocket")}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+              boxSizing: "border-box",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              fontSize: 15,
+              textAlign: "left",
+            }}
           >
-            <option value="">Select pocket</option>
-
-            {pockets.map((p) => (
-              <option
-                key={p.pocket_id}
-                value={p.pocket_id}
-              >
-                {p.name}
-              </option>
-            ))}
-          </select>
+            <span
+              style={{
+                color: toPocketId
+                  ? "var(--pm-text-primary)"
+                  : "var(--pm-text-muted)",
+              }}
+            >
+              {pockets.find((p) => p.pocket_id === toPocketId)?.name ||
+                "Select pocket"}
+            </span>
+            <i
+              className="ti ti-chevron-down"
+              style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+            />
+          </button>
         </Field>
       )}
 
@@ -1055,24 +1102,37 @@ export default function TransactionForm({
               : "Select the pocket that will pay for this expense"
           }
         >
-          <select
+          <button
+            type="button"
             className="pm-select"
-            value={fromPocketId}
-            onChange={(e) =>
-              handleSourcePocketChange(e.target.value)
-            }
+            onClick={() => setOpenPicker("fromPocket")}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+              boxSizing: "border-box",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              fontSize: 15,
+              textAlign: "left",
+            }}
           >
-            <option value="">Select pocket</option>
-
-            {pockets.map((p) => (
-              <option
-                key={p.pocket_id}
-                value={p.pocket_id}
-              >
-                {p.name} · {formatRp(p.balance)}
-              </option>
-            ))}
-          </select>
+            <span
+              style={{
+                color: fromPocketId
+                  ? "var(--pm-text-primary)"
+                  : "var(--pm-text-muted)",
+              }}
+            >
+              {pockets.find((p) => p.pocket_id === fromPocketId)?.name ||
+                "Select pocket"}
+            </span>
+            <i
+              className="ti ti-chevron-down"
+              style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+            />
+          </button>
         </Field>
       )}
 
@@ -1087,24 +1147,37 @@ export default function TransactionForm({
               : "Select the pocket the money will come from"
           }
         >
-          <select
+          <button
+            type="button"
             className="pm-select"
-            value={transferFrom}
-            onChange={(e) =>
-              handleSourcePocketChange(e.target.value)
-            }
+            onClick={() => setOpenPicker("transferFrom")}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+              boxSizing: "border-box",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              fontSize: 15,
+              textAlign: "left",
+            }}
           >
-            <option value="">Select pocket</option>
-
-            {pockets.map((p) => (
-              <option
-                key={p.pocket_id}
-                value={p.pocket_id}
-              >
-                {p.name} · {formatRp(p.balance)}
-              </option>
-            ))}
-          </select>
+            <span
+              style={{
+                color: transferFrom
+                  ? "var(--pm-text-primary)"
+                  : "var(--pm-text-muted)",
+              }}
+            >
+              {pockets.find((p) => p.pocket_id === transferFrom)?.name ||
+                "Select pocket"}
+            </span>
+            <i
+              className="ti ti-chevron-down"
+              style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+            />
+          </button>
         </Field>
       )}
 
@@ -1334,32 +1407,37 @@ export default function TransactionForm({
           </Field>
 
           <Field label="Category">
-            <select
+            <button
+              type="button"
               className="pm-select"
-              value={
-                incomeCategoryId
-              }
-              onChange={(e) =>
-                setIncomeCategoryId(
-                  e.target.value
-                )
-              }
+              onClick={() => setOpenPicker("incomeCategory")}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                boxSizing: "border-box",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 15,
+                textAlign: "left",
+              }}
             >
-              <option value="">
-                Select category
-              </option>
-
-              {incomeCategories.map(
-                (c) => (
-                  <option
-                    key={c.id}
-                    value={c.id}
-                  >
-                    {c.name}
-                  </option>
-                )
-              )}
-            </select>
+              <span
+                style={{
+                  color: incomeCategoryId
+                    ? "var(--pm-text-primary)"
+                    : "var(--pm-text-muted)",
+                }}
+              >
+                {incomeCategories.find((c) => c.id === incomeCategoryId)
+                  ?.name || "Select category"}
+              </span>
+              <i
+                className="ti ti-chevron-down"
+                style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+              />
+            </button>
           </Field>
         </>
       )}
@@ -1383,50 +1461,37 @@ export default function TransactionForm({
           </Field>
 
           <Field label="Category">
-            <select
+            <button
+              type="button"
               className="pm-select"
-              value={
-                expenseCategoryId
-              }
-              onChange={(e) => {
-                setExpenseCategoryId(
-                  e.target.value
-                );
-                setDebtId("");
-                setDebtAction("payment");
+              onClick={() => setOpenPicker("expenseCategory")}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                boxSizing: "border-box",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 15,
+                textAlign: "left",
               }}
             >
-              <option value="">
-                Select category
-              </option>
-
-              {Object.entries(
-                expenseCategories.reduce(
-                  (groups, c) => {
-                    const key =
-                      c.group_name || "General";
-                    (groups[key] =
-                      groups[key] || []).push(c);
-                    return groups;
-                  },
-                  {}
-                )
-              ).map(([groupName, items]) => (
-                <optgroup
-                  key={groupName}
-                  label={groupName}
-                >
-                  {items.map((c) => (
-                    <option
-                      key={c.id}
-                      value={c.id}
-                    >
-                      {c.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+              <span
+                style={{
+                  color: expenseCategoryId
+                    ? "var(--pm-text-primary)"
+                    : "var(--pm-text-muted)",
+                }}
+              >
+                {expenseCategories.find((c) => c.id === expenseCategoryId)
+                  ?.name || "Select category"}
+              </span>
+              <i
+                className="ti ti-chevron-down"
+                style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+              />
+            </button>
           </Field>
 
           {isDebtCategory && (
@@ -1635,39 +1700,37 @@ export default function TransactionForm({
           </div>
 
           <Field label="To pocket">
-            <select
+            <button
+              type="button"
               className="pm-select"
-              value={
-                transferTo
-              }
-              onChange={(e) =>
-                setTransferTo(
-                  e.target.value
-                )
-              }
+              onClick={() => setOpenPicker("transferTo")}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                boxSizing: "border-box",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 15,
+                textAlign: "left",
+              }}
             >
-              <option value="">
-                Select pocket
-              </option>
-
-              {pockets.map(
-                (p) => (
-                  <option
-                    key={
-                      p.pocket_id
-                    }
-                    value={
-                      p.pocket_id
-                    }
-                  >
-                    {p.name} ·{" "}
-                    {formatRp(
-                      p.balance
-                    )}
-                  </option>
-                )
-              )}
-            </select>
+              <span
+                style={{
+                  color: transferTo
+                    ? "var(--pm-text-primary)"
+                    : "var(--pm-text-muted)",
+                }}
+              >
+                {pockets.find((p) => p.pocket_id === transferTo)?.name ||
+                  "Select pocket"}
+              </span>
+              <i
+                className="ti ti-chevron-down"
+                style={{ fontSize: 16, color: "var(--pm-text-secondary)" }}
+              />
+            </button>
           </Field>
         </>
       )}
@@ -1953,6 +2016,70 @@ export default function TransactionForm({
           )}
         </select>
       </Field>
+
+      <PickerSheet
+        open={openPicker === "toPocket"}
+        onClose={() => setOpenPicker(null)}
+        title="To pocket"
+        searchPlaceholder="Search pocket..."
+        options={pocketOptions}
+        value={toPocketId}
+        onSelect={setToPocketId}
+      />
+
+      <PickerSheet
+        open={openPicker === "fromPocket"}
+        onClose={() => setOpenPicker(null)}
+        title="From pocket"
+        searchPlaceholder="Search pocket..."
+        options={pocketOptions}
+        value={fromPocketId}
+        onSelect={handleSourcePocketChange}
+      />
+
+      <PickerSheet
+        open={openPicker === "transferFrom"}
+        onClose={() => setOpenPicker(null)}
+        title="From pocket"
+        searchPlaceholder="Search pocket..."
+        options={pocketOptions}
+        value={transferFrom}
+        onSelect={handleSourcePocketChange}
+      />
+
+      <PickerSheet
+        open={openPicker === "transferTo"}
+        onClose={() => setOpenPicker(null)}
+        title="To pocket"
+        searchPlaceholder="Search pocket..."
+        options={pocketOptions}
+        value={transferTo}
+        onSelect={setTransferTo}
+      />
+
+      <PickerSheet
+        open={openPicker === "incomeCategory"}
+        onClose={() => setOpenPicker(null)}
+        title="Category"
+        searchPlaceholder="Search category..."
+        options={incomeCategoryOptions}
+        value={incomeCategoryId}
+        onSelect={setIncomeCategoryId}
+      />
+
+      <PickerSheet
+        open={openPicker === "expenseCategory"}
+        onClose={() => setOpenPicker(null)}
+        title="Category"
+        searchPlaceholder="Search category..."
+        options={expenseCategoryOptions}
+        value={expenseCategoryId}
+        onSelect={(val) => {
+          setExpenseCategoryId(val);
+          setDebtId("");
+          setDebtAction("payment");
+        }}
+      />
 
       {/* Bottom spacing */}
       <div

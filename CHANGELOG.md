@@ -7,6 +7,15 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd)
+
+### Added
+- New reusable `PickerSheet.jsx` component: a searchable bottom-sheet picker replacing native `<select>` for pocket and category fields in TransactionForm. Fixes unreliable scrolling on iOS WebKit (Safari/Brave) with long option lists, and adds a search box so categories (40+ items across groups) don't require manual scrolling.
+- Applied to all 6 relevant fields in TransactionForm: income to-pocket, expense from-pocket, transfer from/to-pocket, income category, expense category.
+
+### Known limitations
+- Debt picker (in the "Which debt to pay?" section) still uses a native `<select>` — a different approach for that field was intentionally deferred.
+
 ## 2026-08-16
 
 ### Added

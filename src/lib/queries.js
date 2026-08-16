@@ -342,6 +342,42 @@ export async function updateProfile(
   if (error) throw error;
 }
 
+export async function uploadAvatar(file) {
+  const userId = await getCurrentUserId();
+
+  const ext = file.name.split(".").pop();
+  const path = `${userId}/avatar-${Date.now()}.${ext}`;
+
+  const {
+    error: uploadError,
+  } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, {
+      upsert: true,
+    });
+
+  if (uploadError) throw uploadError;
+
+  const {
+    data,
+  } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(path);
+
+  const {
+    error: updateError,
+  } = await supabase
+    .from("profiles")
+    .update({
+      avatar_url: data.publicUrl,
+    })
+    .eq("id", userId);
+
+  if (updateError) throw updateError;
+
+  return data.publicUrl;
+}
+
 export async function updateProfileDetails(
   id,
   { username, fullName }

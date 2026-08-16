@@ -7,6 +7,10 @@ import {
 import "../styles/pocketmaster.css";
 import TabBar from "./TabBar";
 
+function toLocalDateString(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 const fmt = (n) =>
   "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
 
@@ -137,15 +141,9 @@ function typeLabel(type) {
 }
 
 function groupByDate(transactions) {
-  const today = new Date()
-    .toISOString()
-    .slice(0, 10);
+  const today = toLocalDateString(new Date());
 
-  const yesterday = new Date(
-    Date.now() - 86400000
-  )
-    .toISOString()
-    .slice(0, 10);
+  const yesterday = toLocalDateString(new Date(Date.now() - 86400000));
 
   const groups = {};
 

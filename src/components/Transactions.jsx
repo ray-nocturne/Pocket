@@ -4,6 +4,10 @@ import {
 } from "../lib/queries";
 import "../styles/pocketmaster.css";
 
+function toLocalDateString(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 const fmt = (n) =>
   "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
 
@@ -20,31 +24,26 @@ function formatTime(d) {
 }
 
 function groupByDate(transactions) {
-  const today = new Date()
-    .toISOString()
-    .slice(0, 10);
+  const today = toLocalDateString(new Date());
 
-  const yesterday = new Date(
-    Date.now() - 86400000
-  )
-    .toISOString()
-    .slice(0, 10);
+  const yesterday = toLocalDateString(new Date(Date.now() - 86400000));
 
   const groups = {};
 
   for (const tx of transactions) {
+    const formattedDate = new Date(
+      tx.date
+    ).toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+    });
+
     const label =
       tx.date === today
-        ? "Hari ini"
+        ? `Today, ${formattedDate}`
         : tx.date === yesterday
-        ? "Kemarin"
-        : new Date(tx.date).toLocaleDateString(
-            "id-ID",
-            {
-              day: "numeric",
-              month: "long",
-            }
-          );
+        ? `Yesterday, ${formattedDate}`
+        : formattedDate;
 
     (groups[tx.date] = groups[tx.date] || {
       label,
@@ -198,7 +197,7 @@ export default function Transactions({
               margin: "3px 0 0",
             }}
           >
-            Riwayat semua transaksi
+            Complete transaction history
           </p>
         </div>
       </div>
@@ -394,83 +393,112 @@ export default function Transactions({
                             minWidth: 0,
                           }}
                         >
-                          <p
+                          <div
                             style={{
-                              fontSize: 14,
-                              margin: 0,
-                              whiteSpace:
-                                "nowrap",
-                              overflow: "hidden",
-                              textOverflow:
-                                "ellipsis",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "baseline",
+                              gap: 8,
                             }}
                           >
-                            {tx.category?.name ||
-                              (tx.type ===
-                              "transfer"
-                                ? "Transfer"
-                                : "Lainnya")}
-                            {tx.description
-                              ? ` · ${tx.description}`
-                              : ""}
-                          </p>
+                            <p
+                              style={{
+                                fontSize: 14,
+                                margin: 0,
+                                fontWeight: 600,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {tx.category?.name ||
+                                (tx.type === "transfer"
+                                  ? "Transfer"
+                                  : "Other")}
+                            </p>
+
+                            <p
+                              style={{
+                                fontSize: 12,
+                                color: "var(--pm-text-secondary)",
+                                margin: 0,
+                                whiteSpace: "nowrap",
+                                flexShrink: 0,
+                              }}
+                            >
+                              {pocketName || ""}
+                            </p>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "baseline",
+                              gap: 8,
+                              marginTop: 2,
+                            }}
+                          >
+                            <p
+                              style={{
+                                fontSize: 12,
+                                color: "var(--pm-text-secondary)",
+                                margin: 0,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {tx.description || "\u00a0"}
+                            </p>
+
+                            <p
+                              className="pm-num"
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 600,
+                                margin: 0,
+                                color:
+                                  isIncome
+                                    ? "var(--pm-success)"
+                                    : isExpense
+                                    ? "var(--pm-danger)"
+                                    : "var(--pm-text-primary)",
+                                flexShrink: 0,
+                              }}
+                            >
+                              {isIncome
+                                ? "+"
+                                : isExpense
+                                ? "-"
+                                : ""}
+                              {fmt(tx.amount)}
+                            </p>
+                          </div>
 
                           <p
                             style={{
-                              fontSize: 12,
-                              color:
-                                "var(--pm-text-secondary)",
-                              margin:
-                                "2px 0 0",
-                              whiteSpace:
-                                "nowrap",
-                              overflow: "hidden",
-                              textOverflow:
-                                "ellipsis",
+                              fontSize: 11,
+                              color: "var(--pm-text-muted, #5B6472)",
+                              margin: "2px 0 0",
                             }}
                           >
-                            {pocketName
-                              ? `${pocketName} · `
-                              : ""}
-                            {formatDate(
-                              new Date(tx.date)
-                            )}
-                            {" · "}
                             {tx.transaction_time
-                              ? tx.transaction_time.slice(
-                                  0,
-                                  5
-                                )
-                              : formatTime(
-                                  new Date(
-                                    tx.created_at
-                                  )
-                                )}
+                              ? tx.transaction_time.slice(0, 5)
+                              : formatTime(new Date(tx.created_at))}
                           </p>
                         </div>
 
-                        <p
-                          className="pm-num"
-                          style={{
-                            fontSize: 14,
-                            fontWeight: 600,
-                            margin: 0,
-                            color:
-                              isIncome
-                                ? "var(--pm-success)"
-                                : isExpense
-                                ? "var(--pm-danger)"
-                                : "var(--pm-text-primary)",
-                            flexShrink: 0,
-                          }}
-                        >
-                          {isIncome
-                            ? "+"
-                            : isExpense
-                            ? "-"
-                            : ""}
-                          {fmt(tx.amount)}
-                        </p>
+                        {tx.proof_url && (
+                          <i
+                            className="ti ti-photo"
+                            style={{
+                              fontSize: 14,
+                              color: "var(--pm-text-secondary)",
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
 
                         <i
                           className="ti ti-chevron-right"

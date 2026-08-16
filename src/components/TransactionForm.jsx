@@ -11,6 +11,10 @@ import {
 import PickerSheet from "./PickerSheet";
 import "../styles/pocketmaster.css";
 
+function toLocalDateString(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 const PAYMENT_METHODS = [
   { value: "bank_transfer", label: "Bank Transfer" },
   { value: "debit", label: "Debit" },
@@ -58,7 +62,7 @@ export default function TransactionForm({
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(
-    new Date().toISOString().slice(0, 10)
+    toLocalDateString(new Date())
   );
   const [transactionTime, setTransactionTime] = useState(
     new Date().toTimeString().slice(0, 5)
@@ -198,7 +202,7 @@ export default function TransactionForm({
 
         setDate(
           data.date ||
-            new Date().toISOString().slice(0, 10)
+            toLocalDateString(new Date())
         );
 
         setTransactionTime(

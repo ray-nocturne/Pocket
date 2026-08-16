@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-16 (cont'd 4)
+
+### Added
+- Small photo icon indicator next to transaction rows in Dashboard and Pocket Detail transaction lists when a proof-of-transaction photo is attached, so it's visible at a glance without opening each transaction's detail screen.
+
 ## 2026-08-16 (cont'd 3)
 
 ### Fixed

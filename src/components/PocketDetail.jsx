@@ -457,6 +457,9 @@ export default function PocketDetail({ pocketId, onBack, onOpenTransaction, onDe
               {isIncome ? "+" : tx.type === "expense" ? "-" : ""}
               {fmt(tx.amount)}
             </p>
+            {tx.proof_url && (
+              <i className="ti ti-photo" style={{ fontSize: 14, color: "var(--pm-text-secondary)", flexShrink: 0 }} />
+            )}
             <i className="ti ti-chevron-right" style={{ fontSize: 16, color: "var(--pm-text-secondary)", flexShrink: 0 }} />
           </button>
         );

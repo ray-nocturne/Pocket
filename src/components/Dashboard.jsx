@@ -1524,6 +1524,17 @@ export default function Dashboard({
                   {fmt(tx.amount)}
                 </p>
 
+                {tx.proof_url && (
+                  <i
+                    className="ti ti-photo"
+                    style={{
+                      fontSize: 14,
+                      color: "var(--pm-text-secondary)",
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+
                 <i
                   className="ti ti-chevron-right"
                   style={{

@@ -44,6 +44,8 @@ Each session's work is grouped under its date. Newest entries at the top.
 - Dashboard continues to show the 15 most recent transactions.
 - Dashboard transaction history now includes a `Lihat Semua` action for opening the full Transaction History screen.
 - Removed the obsolete `Punya pocket lain? + Tambah Pocket` section from Dashboard because Pocket management is now available through the Pocket screen.
+- Pocket breakdown colors now use deterministic unique assignment based on `pocket_id` ordering.
+- Expanded the Pocket color palette to support more unique pocket colors without changing the existing dashboard visual language.
 - Transaction History remains a secondary screen and is intentionally not added to the primary TabBar.
 
 ### Removed

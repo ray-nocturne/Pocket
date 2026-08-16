@@ -16,7 +16,20 @@ const POCKET_COLORS = [
   "#30D158",
   "#F5A623",
   "#5AC8FA",
+  "#BF5AF2",
+  "#FF6B52",
+  "#64D2FF",
+  "#FFD60A",
+  "#AC8E68",
+  "#32ADE6",
+  "#FF375F",
+  "#30D5C8",
+  "#AF52DE",
+  "#FF9F0A",
+  "#64D2FF",
 ];
+
+
 
 const DEBT_COLORS = [
   "#F5A623",
@@ -396,8 +409,26 @@ export default function Dashboard({
 
   const hasPockets = pockets.length > 0;
 
+  // Assign deterministic, unique colors to the currently
+  // visible pockets. Sorting by pocket_id keeps each pocket's
+  // color stable even when the display order changes.
+  const pocketColorMap = new Map(
+    [...pockets]
+      .sort((a, b) =>
+        String(a.pocket_id).localeCompare(
+          String(b.pocket_id)
+        )
+      )
+      .map((p, i) => [
+        p.pocket_id,
+        POCKET_COLORS[
+          i % POCKET_COLORS.length
+        ],
+      ])
+  );
+
   const pocketSlices = pockets.map(
-    (p, i) => ({
+    (p) => ({
       label: p.name,
       type: p.type,
       pct:
@@ -407,10 +438,9 @@ export default function Dashboard({
             100
           : 0,
       amount: p.balance,
-      color:
-        POCKET_COLORS[
-          i % POCKET_COLORS.length
-        ],
+      color: pocketColorMap.get(
+        p.pocket_id
+      ),
     })
   );
 

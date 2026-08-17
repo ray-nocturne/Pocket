@@ -7,6 +7,14 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 7)
+
+### Changed
+- Redesigned Transaction Detail screen layout: subtitle under the amount now shows the payee ("For whom") value directly instead of the description, with the standalone "For whom" row removed from the details section since it's now the subtitle. Details section reordered to Type, Transaction ID (moved up from the page footer), Date, Time (new), Pocket, Category, Payment method. Transaction ID now displays in full (wraps instead of truncating). "View full size" link under the attached photo is now center-aligned instead of left-aligned.
+
+### Fixed
+- Transaction Detail's date was still rendering in Indonesian ("17 Agustus 2026") — `formatDate` was hardcoded to the `id-ID` locale, missed by the earlier language sweeps since it lives in this file specifically. Switched to `en-US`.
+
 ## 2026-08-17 (cont'd 6)
 
 ### Added

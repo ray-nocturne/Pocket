@@ -10,13 +10,26 @@ function formatDate(date) {
   if (!date) return "-";
 
   return new Date(`${date}T00:00:00`).toLocaleDateString(
-    "id-ID",
+    "en-US",
     {
       day: "2-digit",
       month: "long",
       year: "numeric",
     }
   );
+}
+
+function formatTime(transaction) {
+  if (transaction.transaction_time) {
+    return transaction.transaction_time.slice(0, 5);
+  }
+
+  if (!transaction.created_at) return "-";
+
+  const d = new Date(transaction.created_at);
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function paymentMethodLabel(value) {
@@ -206,7 +219,7 @@ export default function TransactionDetail({
             margin: 0,
           }}
         >
-          {transaction.description ||
+          {transaction.payee ||
             transaction.category?.name ||
             (isTransfer
               ? "Transfer"
@@ -266,10 +279,20 @@ export default function TransactionDetail({
         />
 
         <DetailRow
+          label="Transaction ID"
+          value={transaction.id}
+        />
+
+        <DetailRow
           label="Date"
           value={formatDate(
             transaction.date
           )}
+        />
+
+        <DetailRow
+          label="Time"
+          value={formatTime(transaction)}
         />
 
         {isIncome && (
@@ -303,15 +326,6 @@ export default function TransactionDetail({
                   ?.name || "-"
               }
             />
-
-            {transaction.payee && (
-              <DetailRow
-                label="For whom"
-                value={
-                  transaction.payee
-                }
-              />
-            )}
           </>
         )}
 
@@ -405,6 +419,7 @@ export default function TransactionDetail({
               color: "var(--pm-accent)",
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: 6,
             }}
           >
@@ -445,23 +460,6 @@ export default function TransactionDetail({
           : "Delete Transaction"}
       </button>
 
-      {/* ================================================================ */}
-      {/* Transaction ID */}
-      {/* ================================================================ */}
-
-      <p
-        style={{
-          fontSize: 10,
-          color:
-            "var(--pm-text-muted)",
-          textAlign: "center",
-          marginTop: 24,
-          wordBreak: "break-all",
-        }}
-      >
-        Transaction ID:{" "}
-        {transaction.id}
-      </p>
     </div>
   );
 }
@@ -504,6 +502,7 @@ function DetailRow({
           color:
             "var(--pm-text-primary)",
           textAlign: "right",
+          wordBreak: "break-all",
         }}
       >
         {value}

@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 16)
+
+### Fixed
+- Swept the app for remaining `type="number"` inputs that were missed during the earlier Amount/Fee delimiter migration: pocket initial balance (3 form variants in AddPocketFlow.jsx) and debt total amount / monthly installment (AddDebtForm.jsx) now use the same `type="text" inputMode="numeric"` + thousand-separator display pattern already used for transaction amounts. This also fixes an inconsistent mobile keyboard issue where `type="number"` sometimes brought up a full letter keyboard instead of a numeric keypad on iOS. Debt due-day input also switched to the same numeric-keyboard-reliable pattern (digits only, no delimiter needed for a 1-31 day value).
+
 ## 2026-08-17 (cont'd 15)
 
 ### Fixed

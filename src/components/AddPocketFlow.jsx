@@ -125,7 +125,7 @@ function ChooseBank({ onBack, onSaved }) {
       <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. BCA Savings" className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
 
       <p className="pm-label">Initial balance</p>
-      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 6, boxSizing: "border-box" }} />
+      <input type="text" inputMode="numeric" value={balance ? Number(balance).toLocaleString("id-ID") : ""} onChange={(e) => setBalance(e.target.value.replace(/\D/g, ""))} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 6, boxSizing: "border-box" }} />
       <p style={{ fontSize: 12, color: "var(--pm-text-muted)", margin: "0 0 24px" }}>Can be left blank, defaults to 0</p>
 
       <button className="pm-btn-primary" onClick={handleSave} disabled={!canSave || saving}>Save Pocket</button>
@@ -168,7 +168,7 @@ function ChooseEmoney({ onBack, onSaved }) {
         ))}
       </div>
       <p className="pm-label">Initial balance</p>
-      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 24, boxSizing: "border-box" }} />
+      <input type="text" inputMode="numeric" value={balance ? Number(balance).toLocaleString("id-ID") : ""} onChange={(e) => setBalance(e.target.value.replace(/\D/g, ""))} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 24, boxSizing: "border-box" }} />
       <button className="pm-btn-primary" onClick={handleSave} disabled={!selected || saving}>Save Pocket</button>
     </div>
   );
@@ -200,7 +200,7 @@ function CashForm({ onBack, onSaved }) {
       <p className="pm-label">Pocket name</p>
       <input value={name} onChange={(e) => setName(e.target.value)} className="pm-input" style={{ marginBottom: 16, boxSizing: "border-box" }} />
       <p className="pm-label">Initial balance</p>
-      <input type="number" value={balance} onChange={(e) => setBalance(e.target.value)} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 32, boxSizing: "border-box" }} />
+      <input type="text" inputMode="numeric" value={balance ? Number(balance).toLocaleString("id-ID") : ""} onChange={(e) => setBalance(e.target.value.replace(/\D/g, ""))} placeholder="Rp0" className="pm-input pm-num" style={{ marginBottom: 32, boxSizing: "border-box" }} />
       <button className="pm-btn-primary" onClick={handleSave} disabled={saving}>Save Pocket</button>
     </div>
   );

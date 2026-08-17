@@ -37,13 +37,13 @@ export default function AddDebtForm({ onCancel, onSaved }) {
       <input className="pm-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Motorcycle Installment" style={{ marginBottom: 16, boxSizing: "border-box" }} />
 
       <p className="pm-label">Total principal amount</p>
-      <input type="number" className="pm-input" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} placeholder="Rp0" style={{ marginBottom: 16, boxSizing: "border-box" }} />
+      <input type="text" inputMode="numeric" className="pm-input" value={totalAmount ? Number(totalAmount).toLocaleString("id-ID") : ""} onChange={(e) => setTotalAmount(e.target.value.replace(/\D/g, ""))} placeholder="Rp0" style={{ marginBottom: 16, boxSizing: "border-box" }} />
 
       <p className="pm-label">Monthly installment <span style={{ color: "var(--pm-text-muted)" }}>· optional</span></p>
-      <input type="number" className="pm-input" value={monthlyInstallment} onChange={(e) => setMonthlyInstallment(e.target.value)} placeholder="Rp0" style={{ marginBottom: 16, boxSizing: "border-box" }} />
+      <input type="text" inputMode="numeric" className="pm-input" value={monthlyInstallment ? Number(monthlyInstallment).toLocaleString("id-ID") : ""} onChange={(e) => setMonthlyInstallment(e.target.value.replace(/\D/g, ""))} placeholder="Rp0" style={{ marginBottom: 16, boxSizing: "border-box" }} />
 
       <p className="pm-label">Due date (day of month) <span style={{ color: "var(--pm-text-muted)" }}>· optional</span></p>
-      <input type="number" min="1" max="31" className="pm-input" value={dueDay} onChange={(e) => setDueDay(e.target.value)} placeholder="e.g. 15" style={{ marginBottom: 32, boxSizing: "border-box" }} />
+      <input type="text" inputMode="numeric" className="pm-input" value={dueDay} onChange={(e) => setDueDay(e.target.value.replace(/\D/g, "").slice(0, 2))} placeholder="e.g. 15" style={{ marginBottom: 32, boxSizing: "border-box" }} />
 
       <button className="pm-btn-primary" onClick={handleSave} disabled={!canSave || saving}>Save Debt Account</button>
     </div>

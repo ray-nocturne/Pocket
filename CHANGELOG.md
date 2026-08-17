@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 12)
+
+### Fixed
+- **Production-breaking bug**: Pocket Detail and Debt Detail screens crashed with a blank page in production (`Uncaught ReferenceError: formatMoney is not defined`). Root cause: during the earlier currency-formatter migration, both `PocketDetail.jsx` and `DebtDetail.jsx` imported `useCurrency` but never actually called the hook inside their main component (`const { formatMoney } = useCurrency();` was missing), so every `fmt(value, formatMoney)` call site referenced an undefined variable. Additionally, `PocketDetail.jsx`'s `CategoryDonut` sub-component (defined outside the main component) called `formatMoney` without receiving it as a prop at all. Fixed both: added the missing hook call to each main component, and passed `formatMoney` as a prop into `CategoryDonut`. Swept all other currency-migrated files (Dashboard, Transactions, AllPockets, TransactionDetail, TransactionForm, Debts) to confirm none have the same missing-hook-call pattern.
+
 ## 2026-08-17 (cont'd 11)
 
 ### Added

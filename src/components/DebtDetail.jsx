@@ -48,6 +48,7 @@ export default function DebtDetail({
   onBack,
   onOpenTransaction,
 }) {
+  const { formatMoney } = useCurrency();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

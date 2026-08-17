@@ -32,7 +32,7 @@ function pocketIcon(type) {
   return "ti-cash";
 }
 
-function CategoryDonut({ segments, active, onActivate, onClear, size = 96 }) {
+function CategoryDonut({ segments, active, onActivate, onClear, size = 96, formatMoney }) {
   const r = size / 2 - 6;
   const c = 2 * Math.PI * r;
   let offset = 0;
@@ -151,6 +151,7 @@ function DailyBarChart({ dailyFlow }) {
 }
 
 export default function PocketDetail({ pocketId, onBack, onOpenTransaction, onDeleted }) {
+  const { formatMoney } = useCurrency();
   const [detail, setDetail] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -360,6 +361,7 @@ export default function PocketDetail({ pocketId, onBack, onOpenTransaction, onDe
               active={activeCategory}
               onActivate={setActiveCategory}
               onClear={() => setActiveCategory(null)}
+              formatMoney={formatMoney}
             />
             <div style={{ flex: 1 }}>
               {categorySlices.map((c) => (

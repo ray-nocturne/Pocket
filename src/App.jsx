@@ -4,6 +4,7 @@ import Category from "./components/Category";
 import Budget from "./components/Budget";
 
 import LoginScreen from "./components/LoginScreen";
+import AccountActivated from "./components/AccountActivated";
 import Dashboard from "./components/Dashboard";
 import AddPocketFlow from "./components/AddPocketFlow";
 import TransactionForm from "./components/TransactionForm";
@@ -19,6 +20,7 @@ import Transactions from "./components/Transactions";
 
 export default function App() {
   const [session, setSession] = useState(undefined);
+  const [accountActivated, setAccountActivated] = useState(false);
 
   const [screen, setScreen] = useState({
     name: "dashboard",
@@ -52,23 +54,69 @@ export default function App() {
   };
 
   useEffect(() => {
+    const hashParams = new URLSearchParams(
+      window.location.hash.replace(/^#/, "")
+    );
+
+    const verificationType = hashParams.get("type");
+    const isSignupVerification =
+      verificationType === "signup";
+
+    if (isSignupVerification) {
+      setAccountActivated(true);
+
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+
+      supabase.auth.signOut().catch(() => {});
+    }
+
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        setSession(data.session);
+        if (!isSignupVerification) {
+          setSession(data.session);
+        } else {
+          setSession(null);
+        }
       });
 
     const { data: listener } =
       supabase.auth.onAuthStateChange(
-        (_event, newSession) => {
+        (event, newSession) => {
+          if (isSignupVerification) {
+            if (event === "SIGNED_OUT") {
+              setSession(null);
+            }
+            return;
+          }
+
           setSession(newSession);
-          setScreen({ name: "dashboard" });
+
+          if (event === "SIGNED_IN") {
+            setScreen({ name: "dashboard" });
+          }
         }
       );
 
     return () =>
       listener.subscription.unsubscribe();
   }, []);
+
+  if (accountActivated) {
+    return (
+      <AccountActivated
+        onContinue={() => {
+          setAccountActivated(false);
+          setSession(null);
+          setScreen({ name: "dashboard" });
+        }}
+      />
+    );
+  }
 
   if (session === undefined) {
     return (

@@ -7,6 +7,13 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 14)
+
+### Added
+- Implemented the "Forgot password?" flow end-to-end, previously just placeholder text on the login screen. Clicking it now shows an inline email-entry view (reusing the login screen's HUD styling) that calls `supabase.auth.resetPasswordForEmail()`. New `ResetPassword.jsx` screen (reusing the same password-rules checklist and show/hide toggle pattern from Sign Up) is shown when the user follows the reset link from their email, detected via `type=recovery` in the URL hash in `App.jsx` (same pattern as the existing `type=signup` email-confirmation detection, but keeps the session active since Supabase's recovery link grants a temporary session needed to call `updateUser({password})`). On success, signs the user out and returns them to Login to sign in with the new password.
+- `requestPasswordReset()` and `updateUserPassword()` added to `queries.js`.
+- Verified custom SMTP (Resend, domain `pocketmaster.id`, sender `noreply@pocketmaster.id`) is already configured and domain-verified in Resend - this appears to have been completed in an earlier session. Live email delivery not yet re-tested end-to-end since the forgot-password feature didn't exist until now.
+
 ## 2026-08-17 (cont'd 13)
 
 ### Added

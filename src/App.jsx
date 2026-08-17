@@ -5,6 +5,7 @@ import Budget from "./components/Budget";
 
 import LoginScreen from "./components/LoginScreen";
 import AccountActivated from "./components/AccountActivated";
+import ResetPassword from "./components/ResetPassword";
 import Dashboard from "./components/Dashboard";
 import AddPocketFlow from "./components/AddPocketFlow";
 import TransactionForm from "./components/TransactionForm";
@@ -21,6 +22,7 @@ import Transactions from "./components/Transactions";
 export default function App() {
   const [session, setSession] = useState(undefined);
   const [accountActivated, setAccountActivated] = useState(false);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   const [screen, setScreen] = useState({
     name: "dashboard",
@@ -61,6 +63,8 @@ export default function App() {
     const verificationType = hashParams.get("type");
     const isSignupVerification =
       verificationType === "signup";
+    const isPasswordRecovery =
+      verificationType === "recovery";
 
     if (isSignupVerification) {
       setAccountActivated(true);
@@ -72,6 +76,16 @@ export default function App() {
       );
 
       supabase.auth.signOut().catch(() => {});
+    }
+
+    if (isPasswordRecovery) {
+      setPasswordRecovery(true);
+
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
     }
 
     supabase.auth
@@ -111,6 +125,19 @@ export default function App() {
       <AccountActivated
         onContinue={() => {
           setAccountActivated(false);
+          setSession(null);
+          setScreen({ name: "dashboard" });
+        }}
+      />
+    );
+  }
+
+  if (passwordRecovery) {
+    return (
+      <ResetPassword
+        onDone={() => {
+          setPasswordRecovery(false);
+          supabase.auth.signOut().catch(() => {});
           setSession(null);
           setScreen({ name: "dashboard" });
         }}

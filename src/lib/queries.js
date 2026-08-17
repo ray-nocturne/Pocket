@@ -1607,3 +1607,25 @@ export async function getBudgetSpendingHistory(
     .map(([group, amount]) => ({ group, amount }))
     .sort((a, b) => b.amount - a.amount);
 }
+
+// ---------------------------------------------------------------------------
+// Password reset
+// ---------------------------------------------------------------------------
+
+export async function requestPasswordReset(email) {
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    email,
+    { redirectTo: window.location.origin }
+  );
+
+  if (error) throw error;
+}
+
+export async function updateUserPassword(newPassword) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) throw error;
+  return data;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import Category from "./components/Category";
+import Budget from "./components/Budget";
 
 import LoginScreen from "./components/LoginScreen";
 import Dashboard from "./components/Dashboard";
@@ -217,13 +218,44 @@ export default function App() {
             name: "all-pockets",
           })
         }
-        onBudget={() => {}}
+        onBudget={() =>
+          setScreen({
+            name: "budget",
+          })
+        }
         onProfile={() =>
           setScreen({
             name: "profile",
           })
         }
         onBack={goDashboard}
+      />
+    );
+  }
+
+  /* ================================================================ */
+  /* BUDGET */
+  /* ================================================================ */
+
+  if (screen.name === "budget") {
+    return (
+      <Budget
+        onHome={goDashboard}
+        onOpenPocketsList={() =>
+          setScreen({
+            name: "all-pockets",
+          })
+        }
+        onOpenCategory={() =>
+          setScreen({
+            name: "category",
+          })
+        }
+        onOpenProfile={() =>
+          setScreen({
+            name: "profile",
+          })
+        }
       />
     );
   }
@@ -246,7 +278,11 @@ export default function App() {
             name: "category",
           })
         }
-        onOpenBudget={() => {}}
+        onOpenBudget={() =>
+          setScreen({
+            name: "budget",
+          })
+        }
         onOpenAccountSettings={() =>
           setScreen({
             name: "account-settings",
@@ -328,7 +364,11 @@ export default function App() {
             name: "category",
           })
         }
-        onOpenBudget={() => {}}
+        onOpenBudget={() =>
+          setScreen({
+            name: "budget",
+          })
+        }
         onOpenProfile={() =>
           setScreen({
             name: "profile",
@@ -416,7 +456,11 @@ export default function App() {
         })
       }
 
-      onOpenBudget={() => {}}
+      onOpenBudget={() =>
+          setScreen({
+            name: "budget",
+          })
+        }
 
       onOpenTransaction={(transaction) => {
         setSelectedTransaction(transaction);

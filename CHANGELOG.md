@@ -7,6 +7,17 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 11)
+
+### Added
+- Task D: Budget feature, activating the "Budget" footer tab (previously showing a "SOON" badge).
+- New `budget_periods` and `budget_allocations` tables, plus `profiles.budget_period` (global weekly/monthly setting). Base amount per period is transparently suggested from income transactions in that period (with the contributing transactions listed), can be accepted as-is or overridden manually, and locks once confirmed so it doesn't shift mid-period as new transactions come in.
+- Zero-based allocation model: Base amount minus Allocated equals Unallocated, shown at the top of the Budget screen with the same HUD panel styling used elsewhere.
+- Budgets can be set per category group (quick, one number) or drilled down to individual categories within a group (e.g. Breakfast/Lunch/Dinner separately) — group total is automatically derived from its category-level budgets when set that way, avoiding double-counting.
+- Category rows show progress bars (green/amber/red based on percentage spent) comparing actual spending this period against budget, computed from real transaction data.
+- New month/week periods with no budget yet automatically copy forward the previous period's allocations (editable afterward) via `copyBudgetForward()`, so users aren't starting from scratch every period.
+- Period navigation (previous/next arrows) respects the user's chosen period type (weekly shows date ranges like "11 Aug - 17 Aug", monthly shows "August 2026").
+
 ## 2026-08-17 (cont'd 10)
 
 ### Fixed

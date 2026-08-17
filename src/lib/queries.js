@@ -1273,3 +1273,337 @@ export async function getDashboardData(
     categoryGroupBreakdown,
   };
 }
+// ---------------------------------------------------------------------------
+// Budget
+// ---------------------------------------------------------------------------
+
+function toLocalDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function getPeriodBounds(referenceDate, periodType) {
+  const d = new Date(referenceDate);
+
+  if (periodType === "weekly") {
+    const day = d.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const start = new Date(d);
+    start.setDate(d.getDate() + diffToMonday);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    return {
+      start: toLocalDateStr(start),
+      end: toLocalDateStr(end),
+    };
+  }
+
+  const start = new Date(d.getFullYear(), d.getMonth(), 1);
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+
+  return {
+    start: toLocalDateStr(start),
+    end: toLocalDateStr(end),
+  };
+}
+
+export function shiftPeriod(periodStart, periodType, direction) {
+  const d = new Date(`${periodStart}T00:00:00`);
+
+  if (periodType === "weekly") {
+    d.setDate(d.getDate() + direction * 7);
+  } else {
+    d.setMonth(d.getMonth() + direction);
+  }
+
+  return getPeriodBounds(d, periodType);
+}
+
+export async function getBudgetPeriodSetting() {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("budget_period")
+    .eq("id", userId)
+    .single();
+
+  if (error) throw error;
+  return data?.budget_period || "monthly";
+}
+
+export async function updateBudgetPeriodSetting(period) {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ budget_period: period })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getIncomeSuggestion(periodStart, periodEnd) {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("id, date, amount, source_text, description")
+    .eq("owner_id", userId)
+    .eq("type", "income")
+    .gte("date", periodStart)
+    .lt("date", periodEnd)
+    .order("date", { ascending: false });
+
+  if (error) throw error;
+
+  const total = (data || []).reduce(
+    (sum, tx) => sum + Number(tx.amount),
+    0
+  );
+
+  return { total, transactions: data || [] };
+}
+
+export async function getBudgetPeriod(periodStart) {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("budget_periods")
+    .select("*")
+    .eq("owner_id", userId)
+    .eq("period_start", periodStart)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function setBudgetPeriodBase({
+  periodStart,
+  periodEnd,
+  amount,
+  source,
+}) {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("budget_periods")
+    .upsert(
+      {
+        owner_id: userId,
+        period_start: periodStart,
+        period_end: periodEnd,
+        base_amount: amount,
+        source,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "owner_id,period_start" }
+    )
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getBudgetAllocations(periodStart) {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("budget_allocations")
+    .select(
+      "id, group_name, category_id, amount, category:category_id (name, group_name)"
+    )
+    .eq("owner_id", userId)
+    .eq("period_start", periodStart);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function setBudgetAllocation({
+  periodStart,
+  groupName,
+  categoryId,
+  amount,
+}) {
+  const userId = await getCurrentUserId();
+
+  let query = supabase
+    .from("budget_allocations")
+    .select("id")
+    .eq("owner_id", userId)
+    .eq("period_start", periodStart)
+    .eq("group_name", groupName);
+
+  query = categoryId
+    ? query.eq("category_id", categoryId)
+    : query.is("category_id", null);
+
+  const { data: existing, error: findError } = await query.maybeSingle();
+  if (findError) throw findError;
+
+  if (existing) {
+    const { data, error } = await supabase
+      .from("budget_allocations")
+      .update({
+        amount,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  const { data, error } = await supabase
+    .from("budget_allocations")
+    .insert({
+      owner_id: userId,
+      period_start: periodStart,
+      group_name: groupName,
+      category_id: categoryId || null,
+      amount,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteBudgetAllocation(id) {
+  const userId = await getCurrentUserId();
+
+  const { error } = await supabase
+    .from("budget_allocations")
+    .delete()
+    .eq("id", id)
+    .eq("owner_id", userId);
+
+  if (error) throw error;
+}
+
+export async function copyBudgetForward(periodStart) {
+  const userId = await getCurrentUserId();
+
+  const { data: existingRows, error: existingError } = await supabase
+    .from("budget_allocations")
+    .select("id")
+    .eq("owner_id", userId)
+    .eq("period_start", periodStart)
+    .limit(1);
+
+  if (existingError) throw existingError;
+  if (existingRows && existingRows.length > 0) return [];
+
+  const { data: priorRows, error: priorError } = await supabase
+    .from("budget_allocations")
+    .select("period_start")
+    .eq("owner_id", userId)
+    .lt("period_start", periodStart)
+    .order("period_start", { ascending: false })
+    .limit(1);
+
+  if (priorError) throw priorError;
+  if (!priorRows || priorRows.length === 0) return [];
+
+  const priorPeriodStart = priorRows[0].period_start;
+
+  const { data: priorAllocations, error: allocError } = await supabase
+    .from("budget_allocations")
+    .select("group_name, category_id, amount")
+    .eq("owner_id", userId)
+    .eq("period_start", priorPeriodStart);
+
+  if (allocError) throw allocError;
+  if (!priorAllocations || priorAllocations.length === 0) return [];
+
+  const rowsToInsert = priorAllocations.map((row) => ({
+    owner_id: userId,
+    period_start: periodStart,
+    group_name: row.group_name,
+    category_id: row.category_id,
+    amount: row.amount,
+  }));
+
+  const { data, error } = await supabase
+    .from("budget_allocations")
+    .insert(rowsToInsert)
+    .select();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getBudgetSpending(periodStart, periodEnd) {
+  const userId = await getCurrentUserId();
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(
+      "amount, category:category_id (id, name, group_name)"
+    )
+    .eq("owner_id", userId)
+    .eq("type", "expense")
+    .gte("date", periodStart)
+    .lt("date", periodEnd);
+
+  if (error) throw error;
+
+  const groupSpend = {};
+  const categorySpend = {};
+
+  for (const tx of data) {
+    const group = tx.category?.group_name || "Other";
+    const catId = tx.category?.id;
+    const amount = Number(tx.amount);
+
+    groupSpend[group] = (groupSpend[group] || 0) + amount;
+
+    if (catId) {
+      categorySpend[catId] = (categorySpend[catId] || 0) + amount;
+    }
+  }
+
+  return { groupSpend, categorySpend };
+}
+
+export async function getBudgetSpendingHistory(
+  beforeDate,
+  daysBack = 60
+) {
+  const userId = await getCurrentUserId();
+
+  const since = new Date(`${beforeDate}T00:00:00`);
+  since.setDate(since.getDate() - daysBack);
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("amount, category:category_id (name, group_name)")
+    .eq("owner_id", userId)
+    .eq("type", "expense")
+    .gte("date", toLocalDateStr(since))
+    .lt("date", beforeDate);
+
+  if (error) throw error;
+
+  const groupTotals = {};
+
+  for (const tx of data) {
+    const group = tx.category?.group_name || "Other";
+    groupTotals[group] = (groupTotals[group] || 0) + Number(tx.amount);
+  }
+
+  return Object.entries(groupTotals)
+    .map(([group, amount]) => ({ group, amount }))
+    .sort((a, b) => b.amount - a.amount);
+}

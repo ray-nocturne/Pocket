@@ -40,7 +40,7 @@ export function CurrencyProvider({ children }) {
         .from("profiles")
         .select("currency, number_format, show_decimals")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         setSettings({

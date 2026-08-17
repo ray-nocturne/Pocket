@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 15)
+
+### Fixed
+- `CurrencyContext.jsx` used `.single()` when loading a user's currency preferences from `profiles`, which throws a 406 error if the query momentarily returns 0 rows (e.g. right after a fresh login/email-confirmation, before the session is fully settled) - visible as a console error even though the app already gracefully fell back to IDR defaults with no visible impact. Switched to `.maybeSingle()`, which returns null instead of erroring, silencing the false-alarm console noise with no behavior change.
+
 ## 2026-08-17 (cont'd 14)
 
 ### Added

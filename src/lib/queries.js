@@ -1104,7 +1104,7 @@ export async function getDashboardData(
     supabase
       .from("transactions")
       .select(
-        "type, amount, from_pocket_id, to_pocket_id, category:category_id (name)"
+        "type, amount, from_pocket_id, to_pocket_id, category:category_id (name, group_name)"
       )
       .eq(
         "owner_id",
@@ -1227,6 +1227,40 @@ export async function getDashboardData(
       0
     );
 
+  const expenseGroupMap = {};
+
+  for (const tx of expenseTx) {
+    const group = tx.category?.group_name || "Other";
+    const catName = tx.category?.name || "Other";
+
+    if (!expenseGroupMap[group]) {
+      expenseGroupMap[group] = { amount: 0, categories: {} };
+    }
+
+    expenseGroupMap[group].amount += Number(tx.amount);
+    expenseGroupMap[group].categories[catName] =
+      (expenseGroupMap[group].categories[catName] || 0) +
+      Number(tx.amount);
+  }
+
+  const categoryGroupBreakdown = Object.entries(expenseGroupMap)
+    .map(([group, groupData]) => ({
+      group,
+      amount: groupData.amount,
+      pct: expense > 0 ? (groupData.amount / expense) * 100 : 0,
+      categories: Object.entries(groupData.categories)
+        .map(([name, amount]) => ({
+          name,
+          amount,
+          pct:
+            groupData.amount > 0
+              ? (amount / groupData.amount) * 100
+              : 0,
+        }))
+        .sort((a, b) => b.amount - a.amount),
+    }))
+    .sort((a, b) => b.amount - a.amount);
+
   return {
     pockets: pocketsWithCounts,
     debts,
@@ -1236,5 +1270,6 @@ export async function getDashboardData(
     incomeCount,
     expenseCount,
     totalDebt,
+    categoryGroupBreakdown,
   };
 }

@@ -51,6 +51,66 @@ const EXPENSE_CATEGORY_COLORS = [
   "#5B7180",
 ];
 
+function categoryGroupIcon(group) {
+  const icons = {
+    Entertainment: "ti-device-gamepad-2",
+    Family: "ti-users",
+    Financial: "ti-receipt-2",
+    Food: "ti-tools-kitchen-2",
+    General: "ti-category",
+    Health: "ti-stethoscope",
+    Housing: "ti-home",
+    Lifestyle: "ti-sparkles",
+    Shopping: "ti-shopping-bag",
+    "Subscription \u00b7 AI": "ti-robot",
+    "Subscription \u00b7 Music": "ti-music",
+    "Subscription \u00b7 OTT": "ti-device-tv",
+    Transportation: "ti-car",
+    Travel: "ti-plane",
+    Wellness: "ti-yoga",
+    "Work & Business": "ti-briefcase",
+    Other: "ti-dots",
+  };
+
+  return icons[group] || "ti-category";
+}
+
+function bucketTop(items, n, colors, labelKey = "name") {
+  const top = items.slice(0, n);
+  const rest = items.slice(n);
+
+  const restPct = rest.reduce(
+    (sum, x) => sum + x.pct,
+    0
+  );
+
+  const restAmount = rest.reduce(
+    (sum, x) => sum + (x.amount || 0),
+    0
+  );
+
+  const slices = top.map((x, i) => ({
+    label: x[labelKey],
+    pct: x.pct,
+    amount: x.amount,
+    color: colors[i % colors.length],
+  }));
+
+  if (rest.length > 0) {
+    slices.push({
+      label:
+        rest.length > 1
+          ? `Other (${rest.length} groups)`
+          : "Others",
+      pct: restPct,
+      amount: restAmount,
+      color: colors[colors.length - 1],
+    });
+  }
+
+  return slices;
+}
+
 const pad = (n) => n.toString().padStart(2, "0");
 
 function formatDate(d) {
@@ -420,6 +480,7 @@ export default function Dashboard({
     incomeCount,
     expenseCount,
     totalDebt,
+    categoryGroupBreakdown,
   } = data;
 
   const hasPockets = pockets.length > 0;
@@ -474,6 +535,16 @@ export default function Dashboard({
           i % DEBT_COLORS.length
         ],
     })
+  );
+
+  const categorySlices = bucketTop(
+    categoryGroupBreakdown.map((g) => ({
+      name: g.group,
+      pct: g.pct,
+      amount: g.amount,
+    })),
+    5,
+    EXPENSE_CATEGORY_COLORS
   );
 
   const grouped = pockets.reduce(
@@ -1200,6 +1271,344 @@ export default function Dashboard({
           </button>
         ))}
       </div>
+
+      {/* Category */}
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 10,
+        }}
+      >
+        <p
+          className="pm-label"
+          style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: "var(--pm-text-primary)",
+            margin: 0,
+          }}
+        >
+          Category
+        </p>
+
+        {categoryGroupBreakdown.length > 0 && (
+          <button
+            type="button"
+            onClick={onOpenCategory}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--pm-accent)",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            View All
+            <i
+              className="ti ti-chevron-right"
+              style={{
+                fontSize: 13,
+                marginLeft: 3,
+                verticalAlign: "-1px",
+              }}
+            />
+          </button>
+        )}
+      </div>
+
+      {categoryGroupBreakdown.length > 0 ? (
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            overflowX: "auto",
+            marginBottom: 24,
+            paddingBottom: 4,
+            scrollSnapType: "x mandatory",
+          }}
+        >
+          <div
+            className="pm-card pm-card-hud"
+            style={{
+              flex: "0 0 100%",
+              scrollSnapAlign: "start",
+            }}
+          >
+            <p
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                margin: "0 0 16px",
+              }}
+            >
+              Spending by category
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 24,
+              }}
+            >
+              <DonutMini
+                segments={categorySlices}
+                size={110}
+              />
+
+              <div
+                style={{
+                  flex: 1,
+                  maxHeight: 150,
+                  overflowY: "auto",
+                }}
+              >
+                {categorySlices.map((s) => (
+                  <div
+                    key={s.label}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "6px 0",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        fontSize: 13,
+                        minWidth: 0,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: s.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: 110,
+                        }}
+                      >
+                        {s.label}
+                      </span>
+                    </span>
+
+                    <span
+                      className="pm-num"
+                      style={{
+                        fontSize: 13,
+                        color: "var(--pm-text-secondary)",
+                        flexShrink: 0,
+                        marginLeft: 10,
+                      }}
+                    >
+                      {s.pct.toFixed(1)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p
+              style={{
+                fontSize: 11,
+                color: "var(--pm-text-secondary)",
+                margin: "12px 0 0",
+              }}
+            >
+              Swipe for detail of each group &rarr;
+            </p>
+          </div>
+
+          {categoryGroupBreakdown.map((g) => {
+            const subSlices = bucketTop(
+              g.categories,
+              4,
+              EXPENSE_CATEGORY_COLORS
+            );
+
+            return (
+              <div
+                key={g.group}
+                className="pm-card pm-card-hud"
+                style={{
+                  flex: "0 0 100%",
+                  scrollSnapAlign: "start",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginBottom: 14,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      background: "rgba(255,92,122,0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <i
+                      className={`ti ${categoryGroupIcon(g.group)}`}
+                      style={{
+                        fontSize: 16,
+                        color: "var(--pm-danger)",
+                      }}
+                    />
+                  </span>
+
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        margin: 0,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {g.group}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: 11,
+                        color: "var(--pm-text-secondary)",
+                        margin: 0,
+                      }}
+                    >
+                      This month
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 20,
+                  }}
+                >
+                  <DonutMini
+                    segments={subSlices}
+                    size={76}
+                  />
+
+                  <div
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    {subSlices.map((s) => (
+                      <div
+                        key={s.label}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            fontSize: 12,
+                            minWidth: 0,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              background: s.color,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span
+                            style={{
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              maxWidth: 110,
+                            }}
+                          >
+                            {s.label}
+                          </span>
+                        </span>
+
+                        <span
+                          className="pm-num"
+                          style={{
+                            fontSize: 12,
+                            color: "var(--pm-text-secondary)",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {fmt(s.amount)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "var(--pm-text-secondary)",
+                    margin: "14px 0 0",
+                    textAlign: "center",
+                  }}
+                >
+                  &larr; Swipe for more groups &rarr;
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          className="pm-card"
+          style={{ textAlign: "center", marginBottom: 24 }}
+        >
+          <p
+            style={{
+              fontSize: 13,
+              color: "var(--pm-text-secondary)",
+              margin: 0,
+            }}
+          >
+            No expenses recorded this month
+          </p>
+        </div>
+      )}
 
       {/* Debts */}
 

@@ -7,6 +7,12 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 9)
+
+### Added
+- New "Category" breakdown section on the Dashboard, positioned between Pockets and Debts, matching their existing swipeable card pattern. Card 1 shows this month's expense spending grouped by category group (Food, Transportation, Financial, etc. — top 5 groups + "Other" bucket), donut + legend with percentages, consistent with the Pockets/Debts breakdown cards above and below it. Swiping reveals one card per group showing that group's individual categories (e.g. Breakfast/Lunch/Dinner/Coffee within Food) with nominal amounts, top 4 + "Others" bucket. Cards are informational only (not tappable) and pocket-of-payment info was deliberately left out to keep the focus on category composition.
+- `getDashboardData()` now also returns `categoryGroupBreakdown`, computed server-round-trip-free from the same month's transaction data already being fetched (added `group_name` to the category select).
+
 ## 2026-08-17 (cont'd 8)
 
 ### Fixed

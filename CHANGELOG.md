@@ -7,6 +7,12 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 8)
+
+### Fixed
+- Balance show/hide toggle on the Dashboard reset to visible every time the screen remounted (navigating away and back), instead of remembering the last state. Now persisted to `localStorage` (`pm_balance_visible`), device-level since it's a display preference rather than account data.
+- The masked balance placeholder (shown when hidden) displayed the raw currency code ("IDR••••••••") instead of the proper symbol ("Rp ••••••••"), because `getCurrencySymbol()` lacked the IDR special-case that `formatMoney()` already had. Centralized the special-casing into `getCurrencySymbol()` (single source of truth) and had `formatMoney()` reuse it, removing the duplicated logic.
+
 ## 2026-08-17 (cont'd 7)
 
 ### Changed

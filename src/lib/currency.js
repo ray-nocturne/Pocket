@@ -13,6 +13,8 @@ export const SEPARATOR_STYLES = [
 ];
 
 export function getCurrencySymbol(code) {
+  if (code === "IDR") return "Rp ";
+
   const found = currencies.find((c) => c.code === code);
   return found?.symbol || code || "";
 }
@@ -43,12 +45,7 @@ export function formatMoney(
       ? `${groupedInt}${decimal}${decPart}`
       : groupedInt;
 
-  const prefix =
-    currency === "IDR"
-      ? "Rp "
-      : symbol;
-
-  return `${prefix}${formattedNumber}`;
+  return `${symbol}${formattedNumber}`;
 }
 
 export { currencies };

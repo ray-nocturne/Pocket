@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useCurrency } from "../lib/CurrencyContext";
+import { getCurrencySymbol } from "../lib/currency";
 import {
   getDashboardData,
   getRecentTransactions,
@@ -338,15 +339,27 @@ export default function Dashboard({
   onOpenTransactions,
   activeTab = "home",
 }) {
-  const { formatMoney } = useCurrency();
+  const { formatMoney, currency } = useCurrency();
   const fmt = (n) => formatMoney(n);
+  const maskedBalance = `${getCurrencySymbol(currency)}\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022`;
 
   const [data, setData] = useState(null);
   const [recent, setRecent] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
-  const [balanceVisible, setBalanceVisible] = useState(true);
+  const [balanceVisible, setBalanceVisible] = useState(() => {
+    const stored = localStorage.getItem("pm_balance_visible");
+    return stored === null ? true : stored === "true";
+  });
+
+  function toggleBalanceVisible() {
+    setBalanceVisible((v) => {
+      const next = !v;
+      localStorage.setItem("pm_balance_visible", String(next));
+      return next;
+    });
+  }
 
   const carouselRef = useRef(null);
   const [activeCard, setActiveCard] = useState(0);
@@ -720,7 +733,7 @@ export default function Dashboard({
         </p>
         <button
           type="button"
-          onClick={() => setBalanceVisible((v) => !v)}
+          onClick={toggleBalanceVisible}
           aria-label="Toggle balance visibility"
           style={{ background: "none", border: "none", padding: 2, cursor: "pointer" }}
         >
@@ -741,7 +754,7 @@ export default function Dashboard({
           textAlign: "right",
         }}
       >
-        {balanceVisible ? fmt(totalBalance) : "Rp••••••••"}
+        {balanceVisible ? fmt(totalBalance) : maskedBalance}
       </h1>
 
       {balanceVisible && (

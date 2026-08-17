@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 10)
+
+### Fixed
+- Transaction description was silently dropped from the Transaction Detail screen during the earlier redesign (subtitle switched from description to payee, but description itself was never given a new home). Added back as a "Description" row between Category and Payment method, shown only when the transaction has one.
+
 ## 2026-08-17 (cont'd 9)
 
 ### Added

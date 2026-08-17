@@ -360,6 +360,13 @@ export default function TransactionDetail({
           />
         )}
 
+        {transaction.description && (
+          <DetailRow
+            label="Description"
+            value={transaction.description}
+          />
+        )}
+
         {transaction.payment_method && (
           <DetailRow
             label="Payment method"

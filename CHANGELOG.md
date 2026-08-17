@@ -7,6 +7,12 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-17 (cont'd 13)
+
+### Added
+- New `AccountActivated.jsx` screen shown after a user clicks the email confirmation link. Previously, confirming email silently auto-signed the user in and dropped them straight into the Dashboard with no explicit "your account is confirmed" moment. Now `App.jsx` detects the `type=signup` verification hash in the URL, shows a styled confirmation screen (HUD corner brackets, matching the rest of the app), explicitly signs the user out, and cleans up the URL - clicking "Continue" takes them to the Login screen to sign in properly with their credentials.
+- NOTE: This was built in a separate session (uncommitted at the time) and got swept into commit e3351be alongside an unrelated bug fix via a routine `git add .` - not authored in this session, documented here after the fact for changelog accuracy. Worth a quick manual test of the full signup -> email confirmation -> "Continue" -> login flow to confirm it behaves as intended in practice.
+
 ## 2026-08-17 (cont'd 12)
 
 ### Fixed

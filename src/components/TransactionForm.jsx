@@ -121,6 +121,123 @@ export default function TransactionForm({
   const [loadError, setLoadError] = useState("");
 
   // -------------------------------------------------------------------------
+  // Draft persistence (survives accidental reload, e.g. switching to
+  // Gallery to attach a proof photo and coming back)
+  // -------------------------------------------------------------------------
+  const DRAFT_KEY = "pm_transaction_draft";
+
+  useEffect(() => {
+    if (isEdit) return;
+
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+
+      const draft = JSON.parse(raw);
+
+      if (draft.type) setType(draft.type);
+      if (draft.amount) setAmount(draft.amount);
+      if (draft.description) setDescription(draft.description);
+      if (draft.date) setDate(draft.date);
+      if (draft.transactionTime) setTransactionTime(draft.transactionTime);
+      if (draft.paymentMethod) setPaymentMethod(draft.paymentMethod);
+
+      if (draft.toPocketId) setToPocketId(draft.toPocketId);
+      if (draft.sourceText) setSourceText(draft.sourceText);
+      if (draft.incomeCategoryId) setIncomeCategoryId(draft.incomeCategoryId);
+
+      if (draft.fromPocketId) setFromPocketId(draft.fromPocketId);
+      if (draft.payee) setPayee(draft.payee);
+      if (draft.expenseCategoryId) setExpenseCategoryId(draft.expenseCategoryId);
+      if (draft.expenseKind) setExpenseKind(draft.expenseKind);
+
+      if (draft.debtId) setDebtId(draft.debtId);
+      if (draft.debtAction) setDebtAction(draft.debtAction);
+
+      if (draft.transferFrom) setTransferFrom(draft.transferFrom);
+      if (draft.transferTo) setTransferTo(draft.transferTo);
+
+      if (draft.feeEnabled) setFeeEnabled(draft.feeEnabled);
+      if (draft.feeAmount) setFeeAmount(draft.feeAmount);
+      if (draft.feePocketId) setFeePocketId(draft.feePocketId);
+
+      if (draft.proofUrl) {
+        setProofUrl(draft.proofUrl);
+        setProofPreview(draft.proofUrl);
+      }
+      if (draft.proofFileName) setProofFileName(draft.proofFileName);
+      if (draft.proofFileSize) setProofFileSize(draft.proofFileSize);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isEdit) return;
+
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          type,
+          amount,
+          description,
+          date,
+          transactionTime,
+          paymentMethod,
+          toPocketId,
+          sourceText,
+          incomeCategoryId,
+          fromPocketId,
+          payee,
+          expenseCategoryId,
+          expenseKind,
+          debtId,
+          debtAction,
+          transferFrom,
+          transferTo,
+          feeEnabled,
+          feeAmount,
+          feePocketId,
+          proofUrl,
+          proofFileName,
+          proofFileSize,
+        })
+      );
+    } catch {}
+  }, [
+    isEdit,
+    type,
+    amount,
+    description,
+    date,
+    transactionTime,
+    paymentMethod,
+    toPocketId,
+    sourceText,
+    incomeCategoryId,
+    fromPocketId,
+    payee,
+    expenseCategoryId,
+    expenseKind,
+    debtId,
+    debtAction,
+    transferFrom,
+    transferTo,
+    feeEnabled,
+    feeAmount,
+    feePocketId,
+    proofUrl,
+    proofFileName,
+    proofFileSize,
+  ]);
+
+  function clearDraft() {
+    try {
+      sessionStorage.removeItem(DRAFT_KEY);
+    } catch {}
+  }
+
+  // -------------------------------------------------------------------------
   // Load pockets/categories/debts
   // -------------------------------------------------------------------------
   useEffect(() => {
@@ -867,6 +984,8 @@ export default function TransactionForm({
         }
       }
 
+      clearDraft();
+
       onSaved?.(
         savedTransaction
       );
@@ -946,7 +1065,7 @@ export default function TransactionForm({
         }}
       >
         <button
-          onClick={onCancel}
+          onClick={() => { clearDraft(); onCancel?.(); }}
           type="button"
           style={{
             background: "none",

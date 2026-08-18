@@ -7,6 +7,14 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-18
+
+### Fixed
+- Mobile browsers (especially iOS Safari/WebKit) aggressively evict backgrounded tabs from memory, causing a full reload back to Home whenever the user switched apps (e.g. to Gallery to pick a proof photo) and returned - losing their place and any in-progress form data. Added session-scoped state persistence:
+  - `App.jsx` now persists which screen the user is on (plus the selected pocket/debt for detail screens) to `sessionStorage`, and restores it on reload instead of defaulting to Dashboard. Screens that need un-serializable context (e.g. Transaction Detail, Edit Transaction) safely fall back to Dashboard rather than restoring in a broken state.
+  - `TransactionForm.jsx` now persists the entire in-progress draft (type, amount, description, pocket/category selections, fee, proof photo, etc.) to `sessionStorage` while creating a new transaction, and restores it automatically if the page reloads mid-entry. The draft is cleared on successful save or explicit cancel.
+- Native app packaging (PWA manifest) noted as a complementary follow-up to reduce how often this eviction happens in the first place - not yet implemented.
+
 ## 2026-08-17 (cont'd 16)
 
 ### Fixed

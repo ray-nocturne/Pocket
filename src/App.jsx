@@ -19,23 +19,64 @@ import Debts from "./components/Debts";
 import DebtDetail from "./components/DebtDetail";
 import Transactions from "./components/Transactions";
 
+const SESSION_SCREEN_KEY = "pm_session_screen";
+
+const RESTORABLE_SCREENS = [
+  "dashboard",
+  "all-pockets",
+  "category",
+  "budget",
+  "profile",
+  "transactions",
+  "debts",
+  "account-settings",
+  "add-pocket",
+  "add-transaction",
+  "add-debt",
+  "pocket-detail",
+  "debt-detail",
+];
+
+function loadPersistedScreen() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_SCREEN_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!RESTORABLE_SCREENS.includes(parsed.screenName)) return null;
+
+    if (parsed.screenName === "pocket-detail" && !parsed.pocketId) {
+      return null;
+    }
+
+    if (parsed.screenName === "debt-detail" && !parsed.debtId) {
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [session, setSession] = useState(undefined);
   const [accountActivated, setAccountActivated] = useState(false);
   const [passwordRecovery, setPasswordRecovery] = useState(false);
 
-  const [screen, setScreen] = useState({
-    name: "dashboard",
+  const [screen, setScreen] = useState(() => {
+    const persisted = loadPersistedScreen();
+    return persisted ? { name: persisted.screenName } : { name: "dashboard" };
   });
 
   const [selectedTransaction, setSelectedTransaction] =
     useState(null);
 
   const [selectedPocketId, setSelectedPocketId] =
-    useState(null);
+    useState(() => loadPersistedScreen()?.pocketId || null);
 
   const [selectedDebtId, setSelectedDebtId] =
-    useState(null);
+    useState(() => loadPersistedScreen()?.debtId || null);
 
   const [pocketOrigin, setPocketOrigin] =
     useState("dashboard");
@@ -54,6 +95,26 @@ export default function App() {
       name: "dashboard",
     });
   };
+
+  useEffect(() => {
+    if (!session) {
+      try {
+        sessionStorage.removeItem(SESSION_SCREEN_KEY);
+      } catch {}
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(
+        SESSION_SCREEN_KEY,
+        JSON.stringify({
+          screenName: screen.name,
+          pocketId: selectedPocketId,
+          debtId: selectedDebtId,
+        })
+      );
+    } catch {}
+  }, [screen, selectedPocketId, selectedDebtId, session]);
 
   useEffect(() => {
     const hashParams = new URLSearchParams(

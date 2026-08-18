@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signIn, signUp, requestPasswordReset } from "../lib/queries";
+import { signIn, signUp, signInWithGoogle, requestPasswordReset } from "../lib/queries";
 import "../styles/pocketmaster.css";
 
 export default function LoginScreen({ onAuthed }) {
@@ -12,6 +12,7 @@ export default function LoginScreen({ onAuthed }) {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
@@ -47,6 +48,19 @@ export default function LoginScreen({ onAuthed }) {
       setError(e.message || "Something went wrong, please try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setError("");
+    setInfo("");
+    setGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+      // Browser will redirect to Google here; no further code runs.
+    } catch (e) {
+      setError(e.message || "Something went wrong, please try again.");
+      setGoogleLoading(false);
     }
   }
 
@@ -308,6 +322,22 @@ export default function LoginScreen({ onAuthed }) {
 
       <button className="pm-btn-hud" onClick={handleSubmit} disabled={!canSubmit || loading}>
         {loading ? "Processing..." : isRegister ? "SIGN UP" : "LOG IN"}
+      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0" }}>
+        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+        <span style={{ fontSize: 11, color: "var(--pm-text-muted, #7d8790)", letterSpacing: 1 }}>OR</span>
+        <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
+      </div>
+
+      <button
+        className="pm-btn-hud"
+        onClick={handleGoogleSignIn}
+        disabled={googleLoading}
+        style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+      >
+        <i className="ti ti-brand-google" style={{ fontSize: 16 }} />
+        {googleLoading ? "REDIRECTING..." : "SIGN IN WITH GOOGLE"}
       </button>
     </div>
   );

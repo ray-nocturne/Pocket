@@ -7,6 +7,11 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-18 (cont'd)
+
+### Added
+- Domain-scoped redirect: `pocketmaster.id` and `www.pocketmaster.id` now 301-redirect to `app.pocketmaster.id` via `public/_redirects`. `pocketmaster1.netlify.app` (and `app.pocketmaster.id` itself) are unaffected and continue serving the app directly. Interim step for Task 6 (marketing landing page + domain restructuring) - once the landing page replaces the root domain, this redirect will already have visitors flowing correctly to the app subdomain.
+
 ## 2026-08-18
 
 ### Fixed

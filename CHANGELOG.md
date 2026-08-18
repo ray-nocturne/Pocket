@@ -7,6 +7,13 @@ Each session's work is grouped under its date. Newest entries at the top.
 
 ## [Unreleased]
 
+## 2026-08-18 (cont'd 2)
+
+### Added
+- Google Sign-In on the Login screen: new "SIGN IN WITH GOOGLE" button (HUD outline style, below the existing Log In/Sign Up button) using Supabase's `signInWithOAuth`. New `signInWithGoogle()` helper added in `queries.js`. New users via Google get the same auto-seeded profile + default categories as email signups. Required a new Google Cloud OAuth Client ID (project `pocketmaster-505913`) and enabling the Google provider in Supabase Auth, plus adding `localhost:5175` and `app.pocketmaster.id` to Supabase's allowed redirect URLs.
+
+Note: Google sign-in doesn't yet call `checkAccountActive()` like the password flow does - a deactivated account could still sign in via Google until that check is added to the `onAuthStateChange` listener in `App.jsx`.
+
 ## 2026-08-18 (cont'd)
 
 ### Added
